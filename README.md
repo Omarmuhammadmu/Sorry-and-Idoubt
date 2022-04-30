@@ -3,7 +3,7 @@
 
 Rules of Sorry game
 
-Rules of Idoubt:
+Rules of IDoubt:
 - deck of cards is been shuffled then been distributed between two players.
 - every player can peek only to the top card of his cards.- you play your card on its back and decide play it with truth or lie(fake). 
 - every player can only play three true plays on row.
