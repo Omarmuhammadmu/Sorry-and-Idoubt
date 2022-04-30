@@ -837,12 +837,14 @@ int main() {
                         }
                         //Get pawn of replaced 
                         int replacedPawnindex;
-                        replacedPawnindex = whichtoMove(OAP.activePawns);
+                        replacedPawnindex = whichtoMove(replaced, activePawns);
                         //Pop user stack
 
                         //initialize user x y 
                         //push computer
-                        //delete replaced from the array.
+                        computer.push(activePawns[replacedPawnindex]);
+                        //delete replaced from the activePawns array.
+                        activePawns[replacedPawnindex] = {'\0',-1,-1,false,false};
                     }
                     else
                     {   //Find the only active pawn
@@ -857,13 +859,14 @@ int main() {
                         }
                         //Get pawn of replaced 
                         int replacedPawnindex;
-                        replacedPawnindex = whichtoMove(OAP.activePawns);
+                        replacedPawnindex = whichtoMove(OAP, activePawns);
                         //Pop user stack
 
                         //initialize user x y 
                         //push computer
                         computer.push(activePawns[replacedPawnindex]);
-                        //delete replaced from the array.
+                        //delete replaced from the activePawns array.
+                        activePawns[replacedPawnindex] = {'\0',-1,-1,false,false};
                     }
                 }
             }
