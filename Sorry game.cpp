@@ -1,4 +1,3 @@
-//This code was developed by usssssssssssss (W ra7 mstressss 3ala usssssssssssssssssssssssss)
 #include <iostream>
 #include <bits/stdc++.h>
 #include <cstdlib>
@@ -266,6 +265,7 @@ void Draw(deck deckOfcards)
     drawnCard = DOC.Dequeue();
     if (DOC.isEmpty())
     {
+        DOC.front = DOC.rear = 0;
         int n = sizeof(deckOfcards.cards) / sizeof(deckOfcards.cards[0]);
         shuffleCards(deckOfcards.cards, n);
         deckOfcards.queueDeck();
@@ -320,8 +320,6 @@ int whichtoMove(char diff, pawn active[8])
 }
 
 
-
-
 // Function to bump the opponent's pawn to its start
 bool trivialBump(pawn* check, board brd, pawn sentPawns[8])
 {
@@ -351,7 +349,7 @@ bool trivialBump(pawn* check, board brd, pawn sentPawns[8])
     }
     else
         return true;
-    sentPawns[i] = { NULL };
+    sentPawns[i] = {'\0',-1,-1,false,false};
     return false;
 }
 void slide(pawn* check, board brd, pawn sentPawns[8], bool sm) {
@@ -838,7 +836,10 @@ int main() {
                                 cout << "Please enter a correct pawn\n";
                         }
                         //Get pawn of replaced 
+                        int replacedPawnindex;
+                        replacedPawnindex = whichtoMove(OAP.activePawns);
                         //Pop user stack
+
                         //initialize user x y 
                         //push computer
                         //delete replaced from the array.
@@ -855,9 +856,13 @@ int main() {
                             }
                         }
                         //Get pawn of replaced 
+                        int replacedPawnindex;
+                        replacedPawnindex = whichtoMove(OAP.activePawns);
                         //Pop user stack
+
                         //initialize user x y 
                         //push computer
+                        computer.push(activePawns[replacedPawnindex]);
                         //delete replaced from the array.
                     }
                 }
