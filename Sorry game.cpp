@@ -290,8 +290,8 @@ void placeonTrack(pawn* placer, bool selector, board* brd)
     }
 }
 
-//Function to check whether there is a pawn on a particular slot or not
-//Return true if the slot is empty
+//Function to check whether there is a pawn on a particuDlar slot or not
+//Return true if there is a slot is empty
 bool slotChecker(board brd, int x, int y)
 {
     cout << brd.b[x][y];
@@ -317,6 +317,8 @@ int whichtoMove(char diff, pawn active[8])
 }
 
 
+
+
 // Function to bump the opponent's pawn to its start
 bool trivialBump(pawn* check, board brd, pawn sentPawns[8])
 {
@@ -334,19 +336,18 @@ bool trivialBump(pawn* check, board brd, pawn sentPawns[8])
 
     if ((ch == 'A' || ch == 'B' || ch == 'C' || ch == 'D') && !check->red)// user pawn will return to base
     {
-        cout << "user back to base\n";
         user.push(sentPawns[i]);
         usize++;
     }
     else if ((ch == 'Z' || ch == 'X' || ch == 'Y' || ch == 'W') && check->red)// computer pawn will return to base
     {
-        cout << "computer back to base\n";
         computer.push(sentPawns[i]);
         csize++;
     }
     else
         return true;
-    sentPawns[i] = {'\0',-1,-1,false,false};
+    cout << "Pawn " << ch << " was sent home\n";
+    sentPawns[i] = { NULL };
     return false;
 }
 void slide(pawn* check, board brd, pawn sentPawns[8], bool sm) {
@@ -365,15 +366,14 @@ void slide(pawn* check, board brd, pawn sentPawns[8], bool sm) {
         trivialBump(temp, brd, sentPawns);
     }
 }
-
 void movePawn(pawn*, int, board*, pawn[]);
 void moveAnotherPawn(pawn* mover, int steps, board* brd, pawn sentPawns[8]) {// for user only **** needs to be adj. for computer
+    int i;
     if (mover->red) {
         if (user.length() >= 2)
             return; // no pawns to move
         else if (user.length() == 1) // two pawns
         {
-            int i;
             for (i = 0; i < 8; i++)
                 if (sentPawns[i].red && sentPawns[i].s != mover->s)
                     break;
@@ -384,7 +384,7 @@ void moveAnotherPawn(pawn* mover, int steps, board* brd, pawn sentPawns[8]) {// 
             cout << "Which Pawn will you move? \n";
             char ch;
             cin >> ch;
-            while (ch == mover->s )
+            while (ch == mover->s)
             {
                 cout << "Please choonse another pawn \n";
                 cin >> ch;
@@ -392,8 +392,8 @@ void moveAnotherPawn(pawn* mover, int steps, board* brd, pawn sentPawns[8]) {// 
             movePawn(&sentPawns[whichtoMove(ch, sentPawns)], steps, brd, sentPawns);
         }
     }
+    cout << "Pawn " << sentPawns[i].s << " was moved by "<<steps;
 }
-
 //Function to move pawn on the board 
 void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
 {
@@ -434,22 +434,36 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
         }
         return;
     }
+    
     //enter the safe zone
-    if (mover->red && mover->x < 12 && mover->y < 3 && ((-mover->x + mover->y + steps) > 0) && ((-mover->x + mover->y + steps) < 7) && !mover->safe) {
+    if (mover->red && mover->x < 12 && mover->y < 3 && ((-mover->x + mover->y + steps-2) > 0) && ((-mover->x + mover->y + steps-2) < 7) && !mover->safe) {
         brd->b[mover->x][mover->y] = '.';
-        mover->x = -mover->x + mover->y + steps;
+        mover->x = -mover->x + mover->y + steps-2;
         mover->y = 2;
         brd->b[mover->x][mover->y] = mover->s;
         mover->safe = true;
+        if (mover->x == 6) {
+            movePawn(mover, 0, brd, sentPawns);
+        }
         return;
     }
-    if (!mover->red && mover->x > 5 && mover->y > 12 && ((47 - steps - mover->x - mover->y) < 16) && ((47 - steps - mover->x - mover->y) > 9) && !mover->safe) {
+    else if (!mover->red && mover->x > 5 && mover->y > 12 && ((47 - steps - mover->x - mover->y) < 16) && ((47 - steps - mover->x - mover->y) > 9) && !mover->safe) {
         brd->b[mover->x][mover->y] = '.';
         mover->x = 47 - steps - mover->x - mover->y;
         mover->y = 13;
         brd->b[mover->x][mover->y] = mover->s;
         mover->safe = true;
+        if (mover->x == 9) {
+            movePawn(mover, 0, brd, sentPawns);
+        }
         return;
+    }
+    else if ((!mover->red && mover->x > 5 && mover->y > 12) || (mover->red && mover->x < 12 && mover->y < 3)) {
+        if ((-mover->x + mover->y + steps > 6) && mover->red)
+        {
+            moveAnotherPawn(mover, steps, brd, sentPawns);
+            return;
+        }
     }
     int x_cor = mover->x, y_cor = mover->y;
     brd->b[mover->x][mover->y] = '.';
@@ -500,7 +514,7 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
         mover->y = y_cor;
         mover->x = x_cor;
         brd->b[mover->x][mover->y] = mover->s; // new indicies
-        if(mover->red)cout << "Trivial move\n";
+        if (mover->red)cout << "Trivial move\n";
         moveAnotherPawn(mover, steps, brd, sentPawns);
         return;
     }
@@ -509,21 +523,24 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
 
     if ((mover->x == 0 && mover->y == 9) || (mover->x == 9 && mover->y == 15) || (mover->x == 15 && mover->y == 6) || (mover->x == 6 && mover->y == 0))
     {
+    //    slide(mover, *brd, sentPawns, 0);
         movePawn(mover, 4, brd, sentPawns);
         brd->b[0][9] = '>';
         brd->b[6][0] = '^';
         brd->b[15][6] = '<';
         brd->b[9][15] = 'v';
-        slide(mover, *brd, sentPawns, 0);
     }
     if ((mover->x == 0 && mover->y == 1) || (mover->x == 1 && mover->y == 15) || (mover->x == 15 && mover->y == 14) || (mover->x == 14 && mover->y == 0))
     {
+        if (((mover->x == 0 && mover->y == 1) && mover->red) || ((mover->x == 15 && mover->y == 14) && !mover->red)) // return if the smaller slider has the same colour
+            return;
+       // slide(mover, *brd, sentPawns, 1);
+
         movePawn(mover, 3, brd, sentPawns);
         brd->b[14][0] = '^';
         brd->b[15][14] = '<';
         brd->b[1][15] = 'v';
         brd->b[0][1] = '>';
-        slide(mover, *brd, sentPawns, 1);
 
     }
 }
