@@ -636,15 +636,18 @@ int nearfreeindex(bool UOC, pawn sentPawns[8])
         for(int i=0; i<4; i++)
         {
             if(sentPawns[i].s == '\0')
-            return i;
+            {index=i;
+            break;}
         }
     }
     else
     for(int i=4; i<8; i++)
         {
             if(sentPawns[i].s == '\0')
-            return i;
+            {index=i;
+            break;}
         }
+                return index;
 }
 
 //Function of sorry card
@@ -741,7 +744,33 @@ void sorryCard(bool UOC, pawn sentPawns[8],board* brd)
     }
 }
 
-
+int getActivepawnindex(bool UOC, pawn sentPawns[8])
+{
+    int onlyActivepawn;
+    if(UOC)
+    {
+        cout<<"One pawn user is executing:\n";
+        for (int i = 0; i < 1; i++)
+            {
+                if (sentPawns[i].s != '\0')
+                    {
+                        onlyActivepawn = i;
+                        break;}
+            }
+    }
+    else
+    {
+        cout<<"One pawn user is executing:\n";
+        for (int i = 4; i < 7; i++)
+            {
+                if (sentPawns[i].s != '\0')
+                    {
+                        onlyActivepawn = i;
+                        break;}
+            }
+    }
+    return onlyActivepawn;
+}
 
 //Driver code
 int main() {
@@ -849,14 +878,7 @@ int main() {
                         {
                             cout<<"One pawn user is executing:\n";
                             int onlyActivepawn;
-                            for (int i = 0; i < 1; i++)
-                                {
-                                    if (activePawns[i].s != '\0')
-                                    {
-                                        onlyActivepawn = i;;
-                                        break;
-                                    }
-                                }
+                            onlyActivepawn=getActivepawnindex(true,activePawns);
                             movePawn(&activePawns[onlyActivepawn], drawnCard, &brd, activePawns);
                             brd.printBoard(brd.b);
                             if (drawnCard == 2)
@@ -892,14 +914,7 @@ int main() {
                 }
                 else if (user.length() == 2 && brd.b[0][4] != '.')
                 {   int onlyActivepawn;
-                    for (int i = 0; i < 1; i++)
-                        {
-                            if (activePawns[i].s != '\0')
-                                {
-                                    onlyActivepawn = i;;
-                                    break;
-                                }
-                        }
+                    onlyActivepawn=getActivepawnindex(true,activePawns);
                     movePawn(&activePawns[onlyActivepawn], drawnCard, &brd, activePawns);
                     brd.printBoard(brd.b);
                     if (drawnCard == 2)
@@ -937,14 +952,7 @@ int main() {
                     if (user.length() < 3)
                     {
                         int onlyActivepawn;
-                    for (int i = 0; i < 1; i++)
-                        {
-                            if (activePawns[i].s != '\0')
-                                {
-                                    onlyActivepawn = i;;
-                                    break;
-                                }
-                        }
+                        onlyActivepawn=getActivepawnindex(true,activePawns);
                         movePawn(&activePawns[onlyActivepawn], drawnCard, &brd, activePawns);
                         brd.printBoard(brd.b);
                     }
@@ -963,7 +971,6 @@ int main() {
 //Computer turn
         Draw(deckOfcards);
         cout << "The computer has drawn " << drawnCard << endl;
-
         if (computer.length() == 3 && (drawnCard == 1 || drawnCard == 2))
         {
             activePawns[4] = computer.pop();
@@ -1009,7 +1016,10 @@ int main() {
                         }
                         else
                         {
-                            movePawn(&activePawns[4], drawnCard, &brd, activePawns);
+                            cout<<"One pawn computer is executing:\n";
+                            int onlyActivepawn;
+                            onlyActivepawn=getActivepawnindex(false,activePawns);
+                            movePawn(&activePawns[onlyActivepawn], drawnCard, &brd, activePawns);
                             brd.printBoard(brd.b);
                             if (drawnCard == 2)
                             {
@@ -1045,14 +1055,16 @@ int main() {
                 }
                 else if (computer.length() == 2 && brd.b[15][11] != '.')
                 {
-                    movePawn(&activePawns[4], drawnCard, &brd, activePawns);
+                    int onlyActivepawn;
+                    onlyActivepawn=getActivepawnindex(false,activePawns);
+                    movePawn(&activePawns[onlyActivepawn], drawnCard, &brd, activePawns);
                     brd.printBoard(brd.b);
                     if (drawnCard == 2)
                     {
                         cout << "Here3" << endl;
                         Draw(deckOfcards);
                         cout << "The computer has drawn " << drawnCard << endl;
-                        movePawn(&activePawns[4], drawnCard, &brd, activePawns);
+                        movePawn(&activePawns[onlyActivepawn], drawnCard, &brd, activePawns);
                         brd.printBoard(brd.b);
                     }
 
@@ -1082,6 +1094,8 @@ int main() {
                 {
                     if (computer.length() < 3)
                     {
+                        int onlyActivepawn;
+                        onlyActivepawn=getActivepawnindex(false,activePawns);
                         movePawn(&activePawns[4], drawnCard, &brd, activePawns);
                         brd.printBoard(brd.b);
                     }
