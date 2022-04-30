@@ -1,10 +1,9 @@
+//This code was developed by usssssssssssss (W ra7 mstressss 3ala usssssssssssssssssssssssss)
 #include <iostream>
-#include <stdc++.h>
-#include <random>
+#include <bits/stdc++.h>
 #include <cstdlib>
 #include <time.h>
 #include <windows.h>
-#include <conio.h>
 using namespace std;
 
 //Global variables
@@ -20,6 +19,7 @@ struct pawn
     char s; //symbol
     int x, y; //Coordinates on the board
     bool red, safe;
+
 };
 
 //Queue implementation
@@ -56,6 +56,7 @@ struct Queue {
     }
     bool isEmpty()
     {
+        //Empty a queue (check) and reset queue****************************************************************
         return (front == rear);
     }
 };
@@ -151,7 +152,7 @@ void board::printBoard(char arr[17][17])
         for (int j = 0; j < 16; j++)
         {
             cout << arr[i][j] << ' ';
-            if ((i == 0 && ((j < 4) || (j > 7 && j < 13))) || (i < 7 && (j == 1 || j == 3)))
+            if ((i == 0 && ((j < 4) || (j > 7 && j < 13))) || (i < 8 && (j == 1 || j == 3)))
                 SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
             else if ((j == 14 && ((i != 0 && i < 5) || (i > 8 && i < 14))) || ((i == 2 || i == 4) && (j > 7 && j < 15)))
                 SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 1);
@@ -292,6 +293,8 @@ void placeonTrack(pawn* placer, bool selector, board* brd)
 
 //Function to check whether there is a pawn on a particular slot or not
 //Return true if the slot is empty
+//Function to check whether there is a pawn on a particuDlar slot or not
+//Return true if there is a slot is empty
 bool slotChecker(board brd, int x, int y)
 {
     cout << brd.b[x][y];
@@ -316,9 +319,13 @@ int whichtoMove(char diff, pawn active[8])
     }
 }
 
+
+
+
 // Function to bump the opponent's pawn to its start
 bool trivialBump(pawn* check, board brd, pawn sentPawns[8])
 {
+    cout << "bump is called\n";
     if (slotChecker(brd, check->x, check->y)) //do nothing if theres no char
     {
         cout << "empty space\n";
@@ -344,10 +351,9 @@ bool trivialBump(pawn* check, board brd, pawn sentPawns[8])
     }
     else
         return true;
-    sentPawns[i] = { NULL }; //*********
+    sentPawns[i] = { NULL };
     return false;
 }
-
 void slide(pawn* check, board brd, pawn sentPawns[8], bool sm) {
     for (int i = 1; i < 4 - sm; i++)
     {
@@ -468,12 +474,13 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
     {
         mover->y = y_cor;
         mover->x = x_cor;
+        brd->b[mover->x][mover->y] = mover->s; // new indicies
         cout << "Move Skipped: pawn already exists at destination (Trivial move).\n";
         return;
     }
+    //Bump(mover,*brd,sentPawns);
     brd->b[mover->x][mover->y] = mover->s; // new indicies
-    
-    //slide commands
+
     if ((mover->x == 0 && mover->y == 9) || (mover->x == 9 && mover->y == 15) || (mover->x == 15 && mover->y == 6) || (mover->x == 6 && mover->y == 0))
     {
         movePawn(mover, 4, brd, sentPawns);
@@ -481,7 +488,6 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
         brd->b[6][0] = '^';
         brd->b[15][6] = '<';
         brd->b[9][15] = 'v';
-        slide(mover, *brd, sentPawns, 0);
     }
     if ((mover->x == 0 && mover->y == 1) || (mover->x == 1 && mover->y == 15) || (mover->x == 15 && mover->y == 14) || (mover->x == 14 && mover->y == 0))
     {
@@ -490,7 +496,6 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
         brd->b[15][14] = '<';
         brd->b[1][15] = 'v';
         brd->b[0][1] = '>';
-        slide(mover, *brd, sentPawns, 1);
     }
 }
 
@@ -820,34 +825,40 @@ int main() {
                     if (NOAP == 4 || NOAP == 3 || NOAP == 2)
                     {
                         //Read the pawn that will be replaced from the user and check if he enters a proper one
-                        char replacer;
+                        char replaced;
                         cout << "Which pawn would you like to replace?\n";
                         while (true)
                         {
                             bool breaker; //break the while loop
-                            cin >> replacer;
-                            breaker = checker(replacer, activePawns);
+                            cin >> replaced;
+                            breaker = checker(replaced, activePawns);
                             if (breaker)
                                 break;
                             else
                                 cout << "Please enter a correct pawn\n";
                         }
-                        //Bump| replace the selected pawn (Here you have the pawn that will be replaced by a pawn from home)
-                        //Needs to get the numbers of sliding then pop a pawn from user stack then call movepawn.
+                        //Get pawn of replaced 
+                        //Pop user stack
+                        //initialize user x y 
+                        //push computer
+                        //delete replaced from the array.
                     }
                     else
                     {   //Find the only active pawn
                         char OAP; //Only Active Pawn(OAP)
                         for (int i = 4; i < 8; i++)
                         {
-                            if (activePawns[i].s != NULL)
+                            if (activePawns[i].s != '\0')
                             {
                                 OAP = activePawns[i].s;
                                 break;
                             }
                         }
-                        //Bump the only existing pawn
-                        //Needs to get the numbers of sliding then pop a pawn from user stack then call movepawn.
+                        //Get pawn of replaced 
+                        //Pop user stack
+                        //initialize user x y 
+                        //push computer
+                        //delete replaced from the array.
                     }
                 }
             }
@@ -859,7 +870,7 @@ int main() {
             break;
         }
 
-        //Computer turn
+//Computer turn
         Draw(deckOfcards);
         cout << "The computer has drawn " << drawnCard << endl;
 
@@ -892,6 +903,7 @@ int main() {
                     {
                         //Move the pawn function;
                         //Check if there is more than a pawn on board and decide which to move
+                        //*********************************************************************
                         if (computer.length() < 2)
                         {
                             movewhichPawn(&brd, false, activePawns);
