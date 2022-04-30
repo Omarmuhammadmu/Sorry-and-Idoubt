@@ -1,21 +1,24 @@
 #include <iostream>
-#include <bits/stdc++.h>
+#include <stdc++.h>
+#include <random>
 #include <cstdlib>
 #include <time.h>
 #include <windows.h>
+#include <conio.h>
 using namespace std;
 
 //Global variables
-bool win=true;
+bool win = true;
 int drawnCard;
-int usize =4, csize=4, dusize=0, dcsize=0;
+int usize = 4, csize = 4, dusize = 0, dcsize = 0;
 
 #define MAX 4
 
 //pawn implementation
 struct pawn
-{   char s; //symbol
-    int x,y; //Coordinates on the board
+{
+    char s; //symbol
+    int x, y; //Coordinates on the board
     bool red, safe;
 };
 
@@ -29,27 +32,27 @@ struct Queue {
         capacity = c;
         queue = new int;
     }
- 
+
     ~Queue() { delete[] queue; }
-    
+
     void Enqueue(int data)
     {
         // insert element at the rear
         queue[rear] = data;
-            rear++;
+        rear++;
     }
     int Dequeue()
     {
         int drawn = queue[front];
         // shift all the elements from index 2 till rear
         // to the left by one
-            for (int i = 0; i < rear - 1; i++) {
-                queue[i] = queue[i + 1];
-            }
- 
-            // decrement rear
-            rear--;
-            return drawn;
+        for (int i = 0; i < rear - 1; i++) {
+            queue[i] = queue[i + 1];
+        }
+
+        // decrement rear
+        rear--;
+        return drawn;
     }
     bool isEmpty()
     {
@@ -59,11 +62,11 @@ struct Queue {
 
 //Stack implementation (stack of pawns)
 
-class Stack{
+class Stack {
     int top;
-    public:
-    pawn stack [MAX];
-    Stack() {top = -1;}
+public:
+    pawn stack[MAX];
+    Stack() { top = -1; }
 
     bool push(pawn x);
     bool isEmpty();
@@ -86,9 +89,9 @@ bool Stack::push(pawn x)
 }
 pawn Stack::pop()
 {
- 
-        pawn x = stack[top--];
-        return x;
+
+    pawn x = stack[top--];
+    return x;
 }
 bool Stack::isEmpty()
 {
@@ -102,71 +105,72 @@ Queue DOC(45);   //Deck of cards (DOC)
 //Board implementation
 class board
 {
-    public:
+public:
     char b[17][17];
     board()
     {
-        for(int i=0; i<16; i++){
-        b[i][0]=b[i][15]=b[0][i]=b[15][i]='.';}
+        for (int i = 0; i < 16; i++) {
+            b[i][0] = b[i][15] = b[0][i] = b[15][i] = '.';
+        }
 
-        for(int i=1; i<15; i++)
-            for(int j=1; j<15; j++)
-            b[i][j]=' ';
+        for (int i = 1; i < 15; i++)
+            for (int j = 1; j < 15; j++)
+                b[i][j] = ' ';
 
         for (int i = 1; i < 7; i++)
-		{
-			b[i][2] = b[i + 8][13] = '.';
-			b[2][15 - i] = b[13][i] = '.';
-		}
+        {
+            b[i][2] = b[i + 8][13] = '.';
+            b[2][15 - i] = b[13][i] = '.';
+        }
 
         b[1][4] = 'R';
-		b[14][11] = 'Y';
-		b[0][1] = b[0][9] = '>';
-		b[14][0] = b[6][0] = '^';
-		b[15][14] = b[15][6] = '<';
-		b[9][15] = b[1][15] = 'v';
-		b[11][1] = 'G';
-		b[4][14] = 'B';
-        b[7][2] = b[8][13] = char(0+48);
-        b[2][4] = b[13][11] = char(4+48);
+        b[14][11] = 'Y';
+        b[0][1] = b[0][9] = '>';
+        b[14][0] = b[6][0] = '^';
+        b[15][14] = b[15][6] = '<';
+        b[9][15] = b[1][15] = 'v';
+        b[11][1] = 'G';
+        b[4][14] = 'B';
+        b[7][2] = b[8][13] = char(0 + 48);
+        b[2][4] = b[13][11] = char(4 + 48);
 
-        // for(int i=1; i<7;i++)
-        // b[i][2]=b[i+8][13]='.';
-        // b[1][4]=b[14][11] ='s';
-        // b[0][1]=b[1][15]=b[14][0]=b[15][14]='+';
-        // b[0][9]=b[6][0]=b[15][6]=b[9][15]='-';
+
 
     }
     void printBoard(char arr[17][17]);
 };
-void board:: printBoard(char arr[17][17])
+void board::printBoard(char arr[17][17])
 {
+    b[7][2] = char(dusize + 48);
+    b[8][13] = char(dcsize + 48);
+    b[2][4] = char(usize + 48);
+    b[13][11] = char(csize + 48);
     for (int i = 0; i < 16; i++)
-	{
-		cout << "                 ";
-		for (int j = 0; j < 16; j++)
-		{
-			cout << arr[i][j] << ' ';
-			if ((i == 0 && ((j < 4) || (j > 7 && j < 13))) || (i < 7 && (j == 1 || j == 3)))
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
-			else if ((j == 14 && ((i != 0 && i < 5) || (i > 8 && i < 14))) || ((i == 2 || i == 4) && (j > 7 && j < 15)))
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 1);
-			else if ((i == 15 && ((j > 9 && j < 14) || (j > 0 && j < 6))) || (i > 7 && (j == 12 || j == 10)))
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 6);
-			else if ((j == 15 && ((i > 9 && i < 14) || (i > 0 && i < 6))) || ((i == 11 || i == 13) && (j < 7)))
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 2);
-			else
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
-		}
-		cout << endl;
-	}
-//     for(int i=0; i<16; i++)
-//         {
-//         cout<<"                 ";
-//         for(int j=0; j<16; j++)
-//         cout<< arr[i][j]<<' ';
-//         cout<<endl;}
- }
+    {
+        cout << "                 ";
+        for (int j = 0; j < 16; j++)
+        {
+            cout << arr[i][j] << ' ';
+            if ((i == 0 && ((j < 4) || (j > 7 && j < 13))) || (i < 7 && (j == 1 || j == 3)))
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
+            else if ((j == 14 && ((i != 0 && i < 5) || (i > 8 && i < 14))) || ((i == 2 || i == 4) && (j > 7 && j < 15)))
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 1);
+            else if ((i == 15 && ((j > 9 && j < 14) || (j > 0 && j < 6))) || (i > 7 && (j == 12 || j == 10)))
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 6);
+            else if ((j == 15 && ((i > 9 && i < 14) || (i > 0 && i < 6))) || ((i == 11 || i == 13) && (j < 7)))
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 2);
+            else
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+        }
+        cout << endl;
+    }
+    //     for(int i=0; i<16; i++)
+    //         {
+    //         cout<<"                 ";
+    //         for(int j=0; j<16; j++)
+    //         cout<< arr[i][j]<<' ';
+    //         cout<<endl;}
+}
 
 // Shuffle cards
 void shuffleCards(int arr[], int n)
@@ -176,74 +180,81 @@ void shuffleCards(int arr[], int n)
 
     // Shuffling our array
     shuffle(arr, arr + n, default_random_engine(seed));
-} 
+}
 
 //Deck of cards implementation
 class deck
 {
-    public:
+public:
     int cards[45];
-    int index=0;
+    int index = 0;
 
     deck()
     {
-        while(index<5)
-        {cards[index]=1;
-        index++;}
-
-        for(int i=0; i<4; i++)
+        while (index < 5)
         {
-            for(int card=2; card<13; card++)
-            {
-                
-            if(card == 9 || card==6)
-              {continue;}
-            cards[index]=card;
+            cards[index] = 1;
             index++;
-            } 
-        cards[index]=0;
-        index++;
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            for (int card = 2; card < 13; card++)
+            {
+
+                if (card == 9 || card == 6)
+                {
+                    continue;
+                }
+                cards[index] = card;
+                index++;
+            }
+            cards[index] = 0;
+            index++;
         }
 
         //Shuffle the cards in the beginning of the game.
         int n = sizeof(cards) / sizeof(cards[0]);
         srand(time(0));
         int ranTimes = rand() % 10;
-        for(int shuffles=0; shuffles<ranTimes; shuffles++)
-        {shuffleCards(cards, n);}
+        for (int shuffles = 0; shuffles < ranTimes; shuffles++)
+        {
+            shuffleCards(cards, n);
+        }
 
     }
     void queueDeck();
 };
 void deck::queueDeck()
 {
-    for(int i=0; i<45; i++)
+    for (int i = 0; i < 45; i++)
     {   //cout<<cards[i]<<" ";
         DOC.Enqueue(cards[i]);
     }
-    cout<<endl<<"queue enqueued\n"<<endl;
+    cout << endl << "queue enqueued\n" << endl;
 }
 
 //Game's rule
 void gameRules()
-{cout<< endl<<"                                         Sorry game!                                         \n";
+{
+    cout << endl << "                                         Sorry game!                                         \n";
 
-//Rules
-cout<<" Rules of the game\n"<<"-------------------------------\n"<<" - Each player has 4 pawns.\n";
-cout<<" - If it's your first turn and you do not draw a card that lets you start a pawn out, you forfeit(skip) your turn.\n";
-cout<<" - To move a pawn from your start out onto the track, you must draw either a 1 or a 2.\n"<<" If it is a 2 put a pawn on the main track if it was on start and draw again. Otherwise, move pawn forward 2 steps and draw again. \n";
-cout<<" - You may jump over your own or another player's pawn that's in your way, counting it as one space.\n"<<" BUT... if you land on a space that's already occupied by an opponent's pawn, BUMP that pawn back to its own START space.\n";
-cout<<" - 4 and 10 cards move you backwards. If you have successfully moved a pawn backwards at least two spaces beyond your own START space,\n"<<" you may, on a subsequent turn, move into your own SAFETY ZONE without moving all the way around the board.\n";
-cout<<endl<<" Notes:\n"<<"-------------------------------\n";
-cout<<" - Two pawns of the same color may never occupy the same space. If your only possible move would make you land on a space already occupied\n"<<" by another of your own pawns, you forfeit your turn.\n";
-cout<<" - If at any time you cannot move, you forfeit your turn.\n";
-cout<<" - But if at any time you can move, you must move, even if it's to your disadvantage.\n";
-cout<<" - If the pawn is placed on (>), it will move either 3 or 4 steps foward (Clarified which is which on the board) on the main track bumping any opponent's pawn/s back to its/their own START space.\n";
-cout<<" - Movement of pawns is in clockwise movement.\n";
-cout<<" - If the drawn card was (0), then the player can choose any opponent's pawn on the main to replace its own and bump the opponet's pawn back to start \n";
+    //Rules
+    cout << " Rules of the game\n" << "-------------------------------\n" << " - Each player has 4 pawns.\n";
+    cout << " - If it's your first turn and you do not draw a card that lets you start a pawn out, you forfeit(skip) your turn.\n";
+    cout << " - To move a pawn from your start out onto the track, you must draw either a 1 or a 2.\n" << " If it is a 2 put a pawn on the main track if it was on start and draw again. Otherwise, move pawn forward 2 steps and draw again. \n";
+    cout << " - You may jump over your own or another player's pawn that's in your way, counting it as one space.\n" << " BUT... if you land on a space that's already occupied by an opponent's pawn, BUMP that pawn back to its own START space.\n";
+    cout << " - 4 and 10 cards move you backwards. If you have successfully moved a pawn backwards at least two spaces beyond your own START space,\n" << " you may, on a subsequent turn, move into your own SAFETY ZONE without moving all the way around the board.\n";
+    cout << endl << " Notes:\n" << "-------------------------------\n";
+    cout << " - Two pawns of the same color may never occupy the same space. If your only possible move would make you land on a space already occupied\n" << " by another of your own pawns, you forfeit your turn.\n";
+    cout << " - If at any time you cannot move, you forfeit your turn.\n";
+    cout << " - But if at any time you can move, you must move, even if it's to your disadvantage.\n";
+    cout << " - If the pawn is placed on (>), it will move either 3 or 4 steps foward (Clarified which is which on the board) on the main track bumping any opponent's pawn/s back to its/their own START space.\n";
+    cout << " - Movement of pawns is in clockwise movement.\n";
+    cout << " - If the drawn card was (0), then the player can choose any opponent's pawn on the main to replace its own and bump the opponet's pawn back to start \n";
 
-cout<<" All CLEAR?!\n"<<" Let's get started!\n";
-system("pause");
+    cout << " All CLEAR?!\n" << " Let's get started!\n";
+    system("pause");
 }
 
 //Game functions 
@@ -252,7 +263,7 @@ system("pause");
 void Draw(deck deckOfcards)
 {
     drawnCard = DOC.Dequeue();
-    if(DOC.isEmpty())
+    if (DOC.isEmpty())
     {
         int n = sizeof(deckOfcards.cards) / sizeof(deckOfcards.cards[0]);
         shuffleCards(deckOfcards.cards, n);
@@ -261,102 +272,138 @@ void Draw(deck deckOfcards)
 }
 
 //Function to place pawn on the main track
-void placeonTrack(pawn *placer, bool selector, board *brd)
+void placeonTrack(pawn* placer, bool selector, board* brd)
 {
-    if(selector)
-        {   placer->x=0;
-            placer->y=4;
-            brd->b[placer->x][placer->y]= placer->s;
-            cout<<endl;
-        }       
+    if (selector)
+    {
+        placer->x = 0;
+        placer->y = 4;
+        brd->b[placer->x][placer->y] = placer->s;
+        cout << endl;
+    }
     else
-        {   placer->x=15;
-            placer->y=11;
-            brd->b[placer->x][placer->y]= placer->s;
-            cout<<endl;
-        }
+    {
+        placer->x = 15;
+        placer->y = 11;
+        brd->b[placer->x][placer->y] = placer->s;
+        cout << endl;
+    }
 }
 
 //Function to check whether there is a pawn on a particular slot or not
-//Return true if there is a pawn on the slot
+//Return true if the slot is empty
 bool slotChecker(board brd, int x, int y)
-{return (brd.b[x][y] != '.')? true:false;}
+{
+    cout << brd.b[x][y];
+    if (brd.b[x][y] == '.' || brd.b[x][y] == '>' || brd.b[x][y] == '<' || brd.b[x][y] == '^' || brd.b[x][y] == 'v')
+        return true;
+    else
+        return false;
+}
 
 //Function to return the pawn that will move
- int whichtoMove(char diff, pawn active[8])
- {
-     while(true)
-    {    for(int i=0; i<8; i++)
+int whichtoMove(char diff, pawn active[8])
+{
+    while (true)
+    {
+        for (int i = 0; i < 8; i++)
         {
-            if( active[i].s == diff)
-            return i;
+            if (active[i].s == diff)
+                return i;
         }
-        cout<<"Please Enter a correct letter!";
-        cin>>diff;
+        cout << "Please Enter a correct letter!";
+        cin >> diff;
     }
- }
+}
 
 // Function to bump the opponent's pawn to its start
-void Bump(pawn *check, board brd,pawn sentPawns[8])
+bool trivialBump(pawn* check, board brd, pawn sentPawns[8])
 {
-    char ch = brd.b[check->x][check->y];
-    bool isUser;
-    if (check->s == 'A' || check->s == 'B' || check->s == 'C' || check->s == 'D')
-        isUser = true;
-    else
-        isUser = false;
-    if (slotChecker(brd, check->x, check->y))
+    if (slotChecker(brd, check->x, check->y)) //do nothing if theres no char
     {
-        if ((ch == 'A' || ch == 'B' || ch == 'C' || ch == 'D') && !isUser)
-        { // user pawn will return to base
-            int i =whichtoMove(ch,sentPawns);
-            user.push(sentPawns[i]);
-            //sentPawns[i] = NULL;    fix?
-            return;
-        }
-        else if ((ch == 'Z' || ch == 'X' || ch == 'Y' || ch == 'W') && isUser)
-            // computer pawn will return to base
-            {
-            int i =whichtoMove(ch,sentPawns);
-            computer.push(sentPawns[i]);
-            //sentPawns[i] = NULL;    fix?
-            return;}
+        cout << "empty space\n";
+        return false;
+    }
+    char ch = brd.b[check->x][check->y];
+    int i;
+    for (i = 0; i < 8; i++)
+        if (sentPawns[i].s == ch)
+            break;
+
+    if ((ch == 'A' || ch == 'B' || ch == 'C' || ch == 'D') && !check->red)// user pawn will return to base
+    {
+        cout << "user back to base\n";
+        user.push(sentPawns[i]);
+        usize++;
+    }
+    else if ((ch == 'Z' || ch == 'X' || ch == 'Y' || ch == 'W') && check->red)// computer pawn will return to base
+    {
+        cout << "computer back to base\n";
+        computer.push(sentPawns[i]);
+        csize++;
+    }
+    else
+        return true;
+    sentPawns[i] = { NULL }; //*********
+    return false;
+}
+
+void slide(pawn* check, board brd, pawn sentPawns[8], bool sm) {
+    for (int i = 1; i < 4 - sm; i++)
+    {
+        pawn* temp = check;
+
+        if (check->x == 15) // slide left
+            temp->x -= i;
+        else if (check->x == 0)
+            temp->x += i; //slide right
+        else if (check->y == 15)
+            temp->y += i; // slide down
+        else
+            temp->y -= i; // slide up
+        trivialBump(temp, brd, sentPawns);
     }
 }
 
 //Function to move pawn on the board 
-void movePawn(pawn *mover, int steps,board *brd,pawn sentPawns[8])
+void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
 {
-if (mover->safe)
+    //move inside the safe zone
+    if (mover->safe)
     {
-        if (mover->red){
+        if (mover->red) {
             if (mover->x + steps == 6)
             {
                 brd->b[mover->x][2] = '.';
                 DU.push(*mover);
+                dusize++;
                 delete mover;
             }
-            else if ( (mover->x+steps) < 6)
+            else if ((mover->x + steps) < 6)
             {
+                brd->b[mover->x][2] = '.';
                 mover->x += steps;
                 brd->b[mover->x][2] = mover->s;
             }
-    }
+        }
         else {
             if (mover->x - steps == 10)
             {
                 brd->b[mover->x][13] = '.';
-                DU.push(*mover);
+                DC.push(*mover);
+                dcsize++;
                 delete mover;
             }
-            else if ((mover->x-steps) > 10)
+            else if ((mover->x - steps) > 10)
             {
+                brd->b[mover->x][13] = '.';
                 mover->x -= steps;
                 brd->b[mover->x][2] = mover->s;
             }
         }
         return;
     }
+    //enter the safe zone
     if (mover->red && mover->x < 12 && mover->y < 3 && ((-mover->x + mover->y + steps) > 0) && ((-mover->x + mover->y + steps) < 7) && !mover->safe) {
         brd->b[mover->x][mover->y] = '.';
         mover->x = -mover->x + mover->y + steps;
@@ -366,7 +413,7 @@ if (mover->safe)
         return;
     }
     if (!mover->red && mover->x > 5 && mover->y > 12 && ((mover->x + mover->y - steps) < 16) && ((mover->x + mover->y - steps) > 9) && !mover->safe) {
-
+        brd->b[mover->x][mover->y] = '.';
         mover->x = mover->x + mover->y - steps;
         mover->y = 13;
         brd->b[mover->x][mover->y] = mover->s;
@@ -375,142 +422,171 @@ if (mover->safe)
     }
     int x_cor = mover->x, y_cor = mover->y;
     brd->b[mover->x][mover->y] = '.';
-
+    //move on board boundaries
     if (mover->x == 0 && ((mover->y + steps) <= 15)) // upper horizontal
-    {mover->y += steps;}
+    {
+        mover->y += steps;
+    }
     else if (mover->x == 0 && ((mover->y + steps) > 15))
-    { mover->x = (mover->y + steps - 15);
-        mover->y = 15;}
-    
+    {
+        mover->x = (mover->y + steps - 15);
+        mover->y = 15;
+    }
+
     else if ((mover->x + steps) <= 15 && mover->y == 15) // right vertical
-    {mover->x += steps;}
+    {
+        mover->x += steps;
+    }
     else if ((mover->x + steps) > 15 && mover->y == 15)
-    {mover->y = 15 - (mover->x + steps - 15);
-        mover->x = 15;}
+    {
+        mover->y = 15 - (mover->x + steps - 15);
+        mover->x = 15;
+    }
 
     else if (mover->x == 15 && ((mover->y - steps) >= 0)) // lower horizontal
-    {mover->y -= steps;}
+    {
+        mover->y -= steps;
+    }
     else if (mover->x == 15 && ((mover->y - steps) < 0))
-    {mover->x = 15 + (mover->y - steps);
-        mover->y = 0;}
-    
+    {
+        mover->x = 15 + (mover->y - steps);
+        mover->y = 0;
+    }
+
     else if ((mover->x - steps) >= 0 && mover->y == 0) // left vertical
-    {mover->x -= steps;}
+    {
+        mover->x -= steps;
+    }
     else if ((mover->x - steps) < 0 && mover->y == 0)
-    { mover->y = steps - mover->x;
-        mover->x = 0;}
+    {
+        mover->y = steps - mover->x;
+        mover->x = 0;
+    }
 
     char ch = brd->b[mover->x][mover->y];
-    if (((ch == 'A' || ch == 'B' || ch == 'C' || ch == 'D') && mover->red) || ((ch == 'Z' || ch == 'X' || ch == 'Y' || ch == 'W') && !mover->red))
-    { // skip the move
+    if (trivialBump(mover, *brd, sentPawns))
+    {
         mover->y = y_cor;
         mover->x = x_cor;
-        cout << "Move Skipped: pawn already exists";
+        cout << "Move Skipped: pawn already exists at destination (Trivial move).\n";
         return;
     }
-    //Bump(mover,*brd,sentPawns);
     brd->b[mover->x][mover->y] = mover->s; // new indicies
-
-    if((mover->x == 0 && mover->y == 9)||(mover->x == 9 && mover->y == 15) || (mover->x == 15 && mover->y == 6)|| (mover->x == 6 && mover->y == 0))
-    {     movePawn(mover, 4, brd,sentPawns);
-		 brd->b[0][9] = '>';
-		 brd->b[6][0] = '^';
-		 brd->b[15][6] = '<';
-		 brd->b[9][15] = 'v';
-    }
-    if((mover->x == 0 && mover->y == 1)||(mover->x == 1 && mover->y == 15)||(mover->x == 15 && mover->y == 14)||(mover->x == 14 && mover->y == 0))
+    
+    //slide commands
+    if ((mover->x == 0 && mover->y == 9) || (mover->x == 9 && mover->y == 15) || (mover->x == 15 && mover->y == 6) || (mover->x == 6 && mover->y == 0))
     {
-            movePawn(mover, 3, brd,sentPawns);
-		    brd->b[14][0] = '^';
-		    brd->b[15][14] = '<';
-		    brd->b[1][15] = 'v';
-            brd->b[0][1] = '>';
+        movePawn(mover, 4, brd, sentPawns);
+        brd->b[0][9] = '>';
+        brd->b[6][0] = '^';
+        brd->b[15][6] = '<';
+        brd->b[9][15] = 'v';
+        slide(mover, *brd, sentPawns, 0);
+    }
+    if ((mover->x == 0 && mover->y == 1) || (mover->x == 1 && mover->y == 15) || (mover->x == 15 && mover->y == 14) || (mover->x == 14 && mover->y == 0))
+    {
+        movePawn(mover, 3, brd, sentPawns);
+        brd->b[14][0] = '^';
+        brd->b[15][14] = '<';
+        brd->b[1][15] = 'v';
+        brd->b[0][1] = '>';
+        slide(mover, *brd, sentPawns, 1);
     }
 }
 
 //Function to check active pawns[among computer pawns]
-bool checker(char toCheck,pawn sentPawns[8])
+bool checker(char toCheck, pawn sentPawns[8])
 {
-    for(int i=4; i<8; i++)
+    for (int i = 4; i < 8; i++)
     {
-        if( sentPawns[i].s == toCheck)
-        return true;
+        if (sentPawns[i].s == toCheck)
+            return true;
     }
     return false;
 }
 
 //Funcion that returns computer decision
-char computerdesicison (board brd,pawn sentPawns[8])
+char computerdesicison(board brd, pawn sentPawns[8])
 {
     bool returner;
-    while(true)
-    { 
-        srand( time(NULL) ); //Randomize seed initialization
-        int randNum = (rand() %40)%4; // Generate a random number between 0 and 3
+    while (true)
+    {
+        srand(time(NULL)); //Randomize seed initialization
+        int randNum = (rand() % 40) % 4; // Generate a random number between 0 and 3
 
-        if(randNum ==0)
-        {return 'W';}
-        else if(randNum ==1)
-        {return 'X';}
-        else if(randNum ==2)
+        if (randNum == 0)
         {
-            returner = checker('Y',sentPawns);
-            if(returner)
-            return 'Y';
+            return 'W';
+        }
+        else if (randNum == 1)
+        {
+            return 'X';
+        }
+        else if (randNum == 2)
+        {
+            returner = checker('Y', sentPawns);
+            if (returner)
+                return 'Y';
         }
         else
         {
-            returner = checker('Z',sentPawns);
-            if(returner)
-            return 'Z';
+            returner = checker('Z', sentPawns);
+            if (returner)
+                return 'Z';
         }
     }
 
 }
 
 //Move the chosen pawn
-void movewhichPawn(board *brd,bool UOC ,pawn sentPawns[8])
+void movewhichPawn(board* brd, bool UOC, pawn sentPawns[8])
 {
-    if(UOC)
-    {char selector;
-    cout<<"Which Pawn will you move? \n";
-    cin>> selector;
-    cout<<endl;
-    int index;
-    index = whichtoMove(selector,sentPawns);
-    movePawn(&sentPawns[index],drawnCard,brd,sentPawns);}
+    if (UOC)
+    {
+        char selector;
+        cout << "Which Pawn will you move? \n";
+        cin >> selector;
+        cout << endl;
+        int index;
+        index = whichtoMove(selector, sentPawns);
+        movePawn(&sentPawns[index], drawnCard, brd, sentPawns);
+    }
     else
     {
         char selector;
-        selector = computerdesicison (*brd,sentPawns);
+        selector = computerdesicison(*brd, sentPawns);
         int index;
-        index = whichtoMove(selector,sentPawns);
-        movePawn(&sentPawns[index],drawnCard,brd,sentPawns);
-        cout<<"The computer moved "<<sentPawns[index].s<<endl;
+        index = whichtoMove(selector, sentPawns);
+        movePawn(&sentPawns[index], drawnCard, brd, sentPawns);
+        cout << "The computer moved " << sentPawns[index].s << endl;
     }
 
 }
 
 //Function to return the number of active pawns
-int numberofactivePawns(pawn sentPawns[8],bool UOC)
+int numberofactivePawns(pawn sentPawns[8], bool UOC)
 {
-    int NOAP=0; //Number of active pawns
-    if(UOC)
+    int NOAP = 0; //Number of active pawns
+    if (UOC)
     {
-        for(int i=4; i<8; i++)
+        for (int i = 4; i < 8; i++)
         {
-            if(sentPawns[i].s == 'W' ||sentPawns[i].s == 'X' ||sentPawns[i].s == 'Y' ||sentPawns[i].s == 'Z' )
-            {NOAP++;}
+            if (sentPawns[i].s == 'W' || sentPawns[i].s == 'X' || sentPawns[i].s == 'Y' || sentPawns[i].s == 'Z')
+            {
+                NOAP++;
+            }
         }
         return NOAP;
     }
     else
     {
         //Computer
-        for(int i=0; i<4; i++)
+        for (int i = 0; i < 4; i++)
         {
-            if(sentPawns[i].s == 'A' ||sentPawns[i].s == 'B' ||sentPawns[i].s == 'C' ||sentPawns[i].s == 'D' )
-            {NOAP++;}
+            if (sentPawns[i].s == 'A' || sentPawns[i].s == 'B' || sentPawns[i].s == 'C' || sentPawns[i].s == 'D')
+            {
+                NOAP++;
+            }
         }
         return NOAP;
     }
@@ -519,404 +595,448 @@ int numberofactivePawns(pawn sentPawns[8],bool UOC)
 
 
 //Driver code
-int main(){
+int main() {
 
-//gameRules();
-//Initlaizing Board, the deck of cards and 4 pawns for each player.
-board brd;
-deck deckOfcards;
-deckOfcards.queueDeck();
-brd.printBoard(brd.b);
-pawn activePawns [8]={ NULL };
-char uc = 'D';
-char cc = 'Z';
-for(int i=0; i<4; i++)
-{
-    pawn u = {.s = uc--, .x = 1, .y = 4, .red=true, .safe = false};
-    pawn c = {.s = cc--, .x = 14, .y = 11,.red=false,.safe = false};
-    user.push(u);
-    computer.push(c);
-}
-
-//Check length of stack
-cout<< user.length()<<"  "<<computer.length()<<endl;
-//cout<<activePawns[0].s<<"$   "<<activePawns[0].x<<"   "<<activePawns[0].y<<endl;
-
-//Start playing
-bool winner=true;
-
-while(win)
-{
-    //Player turn
-    //Asks the user to press sth to draw
-    cout<<"Press enter to draw\n";
-    cin.get();
-    cin.ignore();
-
-    Draw(deckOfcards);
-    cout<<"You have drawn " <<drawnCard<<endl;
-
-    if(user.length()==3 && (drawnCard==1 || drawnCard==2))
+    //gameRules();
+    //Initlaizing Board, the deck of cards and 4 pawns for each player.
+    board brd;
+    deck deckOfcards;
+    deckOfcards.queueDeck();
+    brd.printBoard(brd.b);
+    pawn activePawns[8] = { NULL };
+    char uc = 'D';
+    char cc = 'Z';
+    usize = 0, csize = 0;
+    for (int i = 0; i < 4; i++)
     {
-        activePawns[0]= user.pop();
-        placeonTrack(&activePawns[0],true,&brd);
-        brd.printBoard(brd.b);
-        if(drawnCard==2)
-        {Draw(deckOfcards);
-        cout<<"You have drawn " <<drawnCard<<endl;
-        //Move the pawn function
-        movePawn(&activePawns[0],drawnCard,&brd,activePawns);
-        brd.printBoard(brd.b);}
+        pawn u = { uc--,  1,  4, true, false };
+        pawn c = { cc--,  14, 11, false, false };
+        user.push(u);
+        computer.push(c);
+        usize++;
+        csize++;
     }
-    else
+
+    //Check length of stack
+    cout << user.length() << "  " << computer.length() << endl;
+    //cout<<activePawns[0].s<<"$   "<<activePawns[0].x<<"   "<<activePawns[0].y<<endl;
+
+    //Start playing
+    bool winner = true;
+
+    while (win)
     {
-        if(drawnCard==1 || drawnCard==2)
+        //Player turn
+        //Asks the user to press sth to draw
+        cout << "Press enter to draw\n";
+        cin.get();
+        cin.ignore();
+
+        Draw(deckOfcards);
+        cout << "You have drawn " << drawnCard << endl;
+
+        if (user.length() == 3 && (drawnCard == 1 || drawnCard == 2))
         {
-            bool movePlace;
-            if((brd.b[0][4] == '.') && (user.length() !=-1))
+            activePawns[0] = user.pop();
+            usize--;
+            placeonTrack(&activePawns[0], true, &brd);
+            brd.printBoard(brd.b);
+            if (drawnCard == 2)
             {
-                cout<<"Do you want to move a pawn (Enter 1)  or to place a pawn(Enter 0)?\n";
-                //Corner Case(input is either 1 or 0 only) [if input letter inifinit loop (needs to be fixed)]
-                int stopper;
-                while(true)
+                Draw(deckOfcards);
+                cout << "You have drawn " << drawnCard << endl;
+                //Move the pawn function
+                movePawn(&activePawns[0], drawnCard, &brd, activePawns);
+                brd.printBoard(brd.b);
+            }
+        }
+        else
+        {
+            if (drawnCard == 1 || drawnCard == 2)
+            {
+                bool movePlace;
+                if ((brd.b[0][4] == '.') && (user.length() != -1))
                 {
-                    cin>>stopper;
-                    if(stopper == 1)
-                    {movePlace = true;
-                    break;}
-                    else if(stopper == 0)
-                    {movePlace = false;
-                    break;}
-                    cout<<"Please enter either 1 (to move) or 0 (to place) : ";
-                }
-                if(movePlace)
+                    cout << "Do you want to move a pawn (Enter 1)  or to place a pawn(Enter 0)?\n";
+                    //Corner Case(input is either 1 or 0 only) [if input letter inifinit loop (needs to be fixed)]
+                    int stopper;
+                    while (true)
+                    {
+                        cin >> stopper;
+                        if (stopper == 1)
+                        {
+                            movePlace = true;
+                            break;
+                        }
+                        else if (stopper == 0)
+                        {
+                            movePlace = false;
+                            break;
+                        }
+                        cout << "Please enter either 1 (to move) or 0 (to place) : ";
+                    }
+                    if (movePlace)
                     {
                         //Move the pawn function;
                         //Check if there is more than a pawn on board and ask for which to move
-                        if(user.length() < 2 )
-                            { 
-                                movewhichPawn(&brd,true,activePawns);
+                        if (user.length() < 2)
+                        {
+                            movewhichPawn(&brd, true, activePawns);
+                            brd.printBoard(brd.b);
+                            if (drawnCard == 2)
+                            {
+                                cout << "Here2" << endl;
+                                Draw(deckOfcards);
+                                cout << "You have drawn " << drawnCard << endl;
+                                movewhichPawn(&brd, true, activePawns);
                                 brd.printBoard(brd.b);
-                                if(drawnCard==2)
-                                {
-                                    cout<<"Here2"<<endl;
-                                    Draw(deckOfcards);
-                                    cout<<"You have drawn " <<drawnCard<<endl;
-                                    movewhichPawn(&brd,true,activePawns);
-                                    brd.printBoard(brd.b);
-                                }
                             }
+                        }
                         else
                         {
-                            movePawn(&activePawns[0],drawnCard,&brd,activePawns);
+                            movePawn(&activePawns[0], drawnCard, &brd, activePawns);
                             brd.printBoard(brd.b);
-                            if(drawnCard==2)
-                                {
-                                    cout<<"Here2"<<endl;
-                                    Draw(deckOfcards);
-                                    cout<<"You have drawn " <<drawnCard<<endl;
-                                    movewhichPawn(&brd,true,activePawns);
-                                    brd.printBoard(brd.b);
-                                }
+                            if (drawnCard == 2)
+                            {
+                                cout << "Here2" << endl;
+                                Draw(deckOfcards);
+                                cout << "You have drawn " << drawnCard << endl;
+                                movewhichPawn(&brd, true, activePawns);
+                                brd.printBoard(brd.b);
+                            }
                         }
                     }
+                    else
+                    {
+                        cout << "Here\n";
+                        if (user.length() == 2)
+                        {
+                            activePawns[1] = user.pop();
+                            usize--;
+                            placeonTrack(&activePawns[1], true, &brd);
+                            brd.printBoard(brd.b);
+                            if (drawnCard == 2)
+                            {
+                                cout << "Here2" << endl;
+                                Draw(deckOfcards);
+                                cout << "You have drawn " << drawnCard << endl;
+                                movewhichPawn(&brd, true, activePawns);
+                                brd.printBoard(brd.b);
+                            }
+                        }
+                        else if (user.length() == 1)
+                        {
+                            activePawns[2] = user.pop();
+                            usize--;
+                            placeonTrack(&activePawns[2], true, &brd);
+                            brd.printBoard(brd.b);
+                            if (drawnCard == 2)
+                            {
+                                cout << "Here2" << endl;
+                                Draw(deckOfcards);
+                                cout << "You have drawn " << drawnCard << endl;
+                                movewhichPawn(&brd, true, activePawns);
+                                brd.printBoard(brd.b);
+                            }
+                        }
+                        else
+                        {
+                            activePawns[3] = user.pop();
+                            usize--;
+                            placeonTrack(&activePawns[3], true, &brd);
+                            brd.printBoard(brd.b);
+                            if (drawnCard == 2)
+                            {
+                                cout << "Here2" << endl;
+                                Draw(deckOfcards);
+                                cout << "You have drawn " << drawnCard << endl;
+                                movewhichPawn(&brd, true, activePawns);
+                                brd.printBoard(brd.b);
+                            }
+                        }
+                    }
+                }
+                else if (user.length() == 2 && brd.b[0][4] != '.')
+                {
+                    movePawn(&activePawns[0], drawnCard, &brd, activePawns);
+                    brd.printBoard(brd.b);
+                    if (drawnCard == 2)
+                    {
+                        cout << "Here2" << endl;
+                        Draw(deckOfcards);
+                        cout << "You have drawn " << drawnCard << endl;
+                        movePawn(&activePawns[0], drawnCard, &brd, activePawns);
+                        brd.printBoard(brd.b);
+                    }
+                }
                 else
                 {
-                    cout<<"Here\n";
-                    if(user.length()==2)
+                    movewhichPawn(&brd, true, activePawns);
+                    brd.printBoard(brd.b);
+                    if (drawnCard == 2)
                     {
-                        activePawns[1]= user.pop();
-                        placeonTrack(&activePawns[1],true,&brd);
+                        cout << "Here2" << endl;
+                        Draw(deckOfcards);
+                        cout << "You have drawn " << drawnCard << endl;
+                        movewhichPawn(&brd, true, activePawns);
                         brd.printBoard(brd.b);
-                        if(drawnCard==2)
-                                {
-                                    cout<<"Here2"<<endl;
-                                    Draw(deckOfcards);
-                                    cout<<"You have drawn " <<drawnCard<<endl;
-                                    movewhichPawn(&brd,true,activePawns);
-                                    brd.printBoard(brd.b);
-                                }
                     }
-                    else if(user.length()==1)
-                        {
-                            activePawns[2]= user.pop();
-                        placeonTrack(&activePawns[2],true,&brd);
-                        brd.printBoard(brd.b);
-                        if(drawnCard==2)
-                                {   cout<<"Here2"<<endl;
-                                    Draw(deckOfcards);
-                                    cout<<"You have drawn " <<drawnCard<<endl;
-                                    movewhichPawn(&brd,true,activePawns);
-                                    brd.printBoard(brd.b);
-                                }}
-                    else
-                        {activePawns[3]= user.pop();
-                            placeonTrack(&activePawns[3],true,&brd);
-                            brd.printBoard(brd.b);
-                            if(drawnCard==2)
-                                {
-                                    cout<<"Here2"<<endl;
-                                    Draw(deckOfcards);
-                                    cout<<"You have drawn " <<drawnCard<<endl;
-                                    movewhichPawn(&brd,true,activePawns);
-                                    brd.printBoard(brd.b);
-                                }
-                        }
                 }
             }
-            else if(user.length() ==2 && brd.b[0][4] != '.')
+            else if (drawnCard > 0)
             {
-                movePawn(&activePawns[0],drawnCard,&brd,activePawns);
-                brd.printBoard(brd.b);
-                if(drawnCard==2)
-                                {
-                                    cout<<"Here2"<<endl;
-                                    Draw(deckOfcards);
-                                    cout<<"You have drawn " <<drawnCard<<endl;
-                                    movePawn(&activePawns[0],drawnCard,&brd,activePawns);
-                                    brd.printBoard(brd.b);
-                                }
-            }
-            else
-            {
-                movewhichPawn(&brd,true,activePawns);
-                brd.printBoard(brd.b);
-                if(drawnCard==2)
-                                {
-                                    cout<<"Here2"<<endl;
-                                    Draw(deckOfcards);
-                                    cout<<"You have drawn " <<drawnCard<<endl;
-                                    movewhichPawn(&brd,true,activePawns);
-                                    brd.printBoard(brd.b);
-                                }
-            }
-        }   
-        else if(drawnCard > 0)
-        {
-            if(user.length() < 2)
-                {   movewhichPawn(&brd,true,activePawns);
+                if (user.length() < 2)
+                {
+                    movewhichPawn(&brd, true, activePawns);
                     brd.printBoard(brd.b);
                 }
-            else
+                else
                 {
-                    if(user.length()<3)
-                    {movePawn(&activePawns[0],drawnCard,&brd,activePawns);
-                    brd.printBoard(brd.b);}
+                    if (user.length() < 3)
+                    {
+                        movePawn(&activePawns[0], drawnCard, &brd, activePawns);
+                        brd.printBoard(brd.b);
+                    }
                 }
+            }
+            // Zero Card of the user
+            else
+            {
+                //     //Cases of skipping
+                bool continuer = true;;
+                if (user.length() == -1)
+                {
+                    continuer = false;
+                }
+                else if (computer.length() == 4 || (!(checker('W', activePawns)) && !(checker('X', activePawns)) && !(checker('Y', activePawns)) && !(checker('Z', activePawns))))
+                {
+                    continuer = false;
+                }
+                //Execute the sorry card rule
+                if (continuer)
+                {
+                    int NOAP = 0; //Number of active pawns
+                    NOAP = numberofactivePawns(activePawns, true);
+                    if (NOAP == 4 || NOAP == 3 || NOAP == 2)
+                    {
+                        //Read the pawn that will be replaced from the user and check if he enters a proper one
+                        char replacer;
+                        cout << "Which pawn would you like to replace?\n";
+                        while (true)
+                        {
+                            bool breaker; //break the while loop
+                            cin >> replacer;
+                            breaker = checker(replacer, activePawns);
+                            if (breaker)
+                                break;
+                            else
+                                cout << "Please enter a correct pawn\n";
+                        }
+                        //Bump| replace the selected pawn (Here you have the pawn that will be replaced by a pawn from home)
+                        //Needs to get the numbers of sliding then pop a pawn from user stack then call movepawn.
+                    }
+                    else
+                    {   //Find the only active pawn
+                        char OAP; //Only Active Pawn(OAP)
+                        for (int i = 4; i < 8; i++)
+                        {
+                            if (activePawns[i].s != NULL)
+                            {
+                                OAP = activePawns[i].s;
+                                break;
+                            }
+                        }
+                        //Bump the only existing pawn
+                        //Needs to get the numbers of sliding then pop a pawn from user stack then call movepawn.
+                    }
+                }
+            }
         }
-        // Zero Card of the user
+        //To check if all pawns of the user are pushed to the destination stack
+        if (DU.length() == 3)
+        {
+            winner = true;
+            break;
+        }
+
+        //Computer turn
+        Draw(deckOfcards);
+        cout << "The computer has drawn " << drawnCard << endl;
+
+        if (computer.length() == 3 && (drawnCard == 1 || drawnCard == 2))
+        {
+            activePawns[4] = computer.pop();
+            csize--;
+            placeonTrack(&activePawns[4], false, &brd);
+            brd.printBoard(brd.b);
+            if (drawnCard == 2)
+            {
+                Draw(deckOfcards);
+                cout << "The computer has drawn " << drawnCard << endl;
+                //Move the pawn function
+                movePawn(&activePawns[4], drawnCard, &brd, activePawns);
+                brd.printBoard(brd.b);
+            }
+        }
         else
         {
-        //     //Cases of skipping
-            bool continuer=true;;
-            if(user.length() == -1)
-            {continuer=false;}
-            else if(computer.length() == 4 || (!(checker('W',activePawns))&& !(checker('X',activePawns)) && !(checker('Y',activePawns))&& !(checker('Z',activePawns))))
-            {continuer=false;}
-                //Execute the sorry card rule
-            if(continuer)
+            if (drawnCard == 1 || drawnCard == 2)
             {
-                int NOAP=0; //Number of active pawns
-                NOAP = numberofactivePawns(activePawns,true);
-                if(NOAP == 4 || NOAP == 3 || NOAP ==2)
+                bool movePlace;
+                if ((brd.b[15][11] == '.') && (computer.length() != -1))
                 {
-                    //Read the pawn that will be replaced from the user and check if he enters a proper one
-                    char replacer;
-                    cout<<"Which pawn would you like to replace?\n";
-                    while(true)
+                    srand(time(NULL)); //Randomize seed initialization
+                    movePlace = rand() % 2; // Generate a random number between 0 and 1
+
+                    if (movePlace)
                     {
-                        bool breaker; //break the while loop
-                        cin>>replacer;
-                        breaker = checker(replacer,activePawns);
-                        if(breaker)
-                        break;
+                        //Move the pawn function;
+                        //Check if there is more than a pawn on board and decide which to move
+                        if (computer.length() < 2)
+                        {
+                            movewhichPawn(&brd, false, activePawns);
+                            brd.printBoard(brd.b);
+                            if (drawnCard == 2)
+                            {
+                                cout << "Here2" << endl;
+                                Draw(deckOfcards);
+                                cout << "The computer has drawn " << drawnCard << endl;
+                                movewhichPawn(&brd, false, activePawns);
+                                brd.printBoard(brd.b);
+                            }
+                        }
                         else
-                        cout<<"Please enter a correct pawn\n";
-                    }
-                    //Bump| replace the selected pawn (Here you have the pawn that will be replaced by a pawn from home)
-                    //Needs to get the numbers of sliding then pop a pawn from user stack then call movepawn.
-                }
-                else
-                {   //Find the only active pawn
-                    char OAP; //Only Active Pawn(OAP)
-                    for (int i=4; i<8; i++)
-                    {   if(activePawns[i].s != NULL)
-                        {   OAP =activePawns[i].s;
-                            break;}
-                    }
-                    //Bump the only existing pawn
-                    //Needs to get the numbers of sliding then pop a pawn from user stack then call movepawn.
-                }
-            }
-        }   
-    }
-    //To check if all pawns of the user are pushed to the destination stack
-    if(DU.length()==3)
-    {winner=true;
-        break;}
-
-//Computer turn
-    Draw(deckOfcards);
-    cout<<"The computer has drawn " <<drawnCard<<endl;
-
-    if(computer.length()==3 && (drawnCard==1 || drawnCard==2))
-        {
-            activePawns[4]= computer.pop();
-            placeonTrack(&activePawns[4],false,&brd);
-            brd.printBoard(brd.b);
-            if(drawnCard==2)
-            {Draw(deckOfcards);
-            cout<<"The computer has drawn " <<drawnCard<<endl;
-            //Move the pawn function
-            movePawn(&activePawns[4],drawnCard,&brd,activePawns);
-            brd.printBoard(brd.b);
-            }
-        }
-    else
-        {
-            if(drawnCard==1 || drawnCard==2)
-                { bool movePlace;
-                    if((brd.b[15][11] == '.') && (computer.length() !=-1))
                         {
-                            srand( time(NULL) ); //Randomize seed initialization
-                            movePlace = rand() % 2; // Generate a random number between 0 and 1
-
-                        if(movePlace)
-                            {
-                                //Move the pawn function;
-                                //Check if there is more than a pawn on board and decide which to move
-                                if(computer.length() < 2 )
-                                    { 
-                                        movewhichPawn(&brd,false,activePawns);
-                                        brd.printBoard(brd.b);
-                                        if(drawnCard==2)
-                                        {   cout<<"Here2"<<endl;
-                                            Draw(deckOfcards);
-                                            cout<<"The computer has drawn " <<drawnCard<<endl;
-                                            movewhichPawn(&brd,false,activePawns);
-                                            brd.printBoard(brd.b);
-                                        }
-                                    }
-                                else
-                                {
-                                    movePawn(&activePawns[4],drawnCard,&brd,activePawns);
-                                    brd.printBoard(brd.b);
-                                    if(drawnCard==2)
-                                        {   cout<<"Here2"<<endl;
-                                            Draw(deckOfcards);
-                                            cout<<"The computer has drawn " <<drawnCard<<endl;
-                                            movewhichPawn(&brd,false,activePawns);
-                                            brd.printBoard(brd.b);
-                                        }
-                                }
-                            }
-                            else
-                            {
-                                cout<<"Here4\n";
-                                if(computer.length()==2)
-                            {
-                                activePawns[5]= computer.pop();
-                                placeonTrack(&activePawns[5],false,&brd);
-                                brd.printBoard(brd.b);
-                                if(drawnCard==2)
-                                        {
-                                            cout<<"Here3"<<endl;
-                                            Draw(deckOfcards);
-                                            cout<<"The computer has drawn " <<drawnCard<<endl;
-                                            movewhichPawn(&brd,false,activePawns);
-                                            brd.printBoard(brd.b);
-                                        }
-                            }
-                            else if(computer.length()==1)
-                                {
-                                    activePawns[6]= computer.pop();
-                                placeonTrack(&activePawns[6],false,&brd);
-                                brd.printBoard(brd.b);
-                                if(drawnCard==2)
-                                        {   cout<<"Here3"<<endl;
-                                            Draw(deckOfcards);
-                                            cout<<"The computer has drawn " <<drawnCard<<endl;
-                                            movewhichPawn(&brd,false,activePawns);
-                                            brd.printBoard(brd.b);
-                                        }}
-                            else
-                                {activePawns[7]= computer.pop();
-                                    placeonTrack(&activePawns[7],false,&brd);
-                                    brd.printBoard(brd.b);
-                                    if(drawnCard==2)
-                                        {
-                                            cout<<"Here3"<<endl;
-                                            Draw(deckOfcards);
-                                            cout<<"The computer has drawn " <<drawnCard<<endl;
-                                            movewhichPawn(&brd,false,activePawns);
-                                            brd.printBoard(brd.b);
-                                        }
-                                }
-                        }
-                    }
-                    else if(computer.length() ==2 && brd.b[15][11] != '.')
-                {
-                    movePawn(&activePawns[4],drawnCard,&brd,activePawns);
-                    brd.printBoard(brd.b);
-                    if(drawnCard==2)
-                        {
-                            cout<<"Here3"<<endl;
-                            Draw(deckOfcards);
-                            cout<<"The computer has drawn " <<drawnCard<<endl;
-                            movePawn(&activePawns[4],drawnCard,&brd,activePawns);
+                            movePawn(&activePawns[4], drawnCard, &brd, activePawns);
                             brd.printBoard(brd.b);
+                            if (drawnCard == 2)
+                            {
+                                cout << "Here2" << endl;
+                                Draw(deckOfcards);
+                                cout << "The computer has drawn " << drawnCard << endl;
+                                movewhichPawn(&brd, false, activePawns);
+                                brd.printBoard(brd.b);
+                            }
                         }
-                    
-                }
+                    }
                     else
+                    {
+                        cout << "Here4\n";
+                        if (computer.length() == 2)
                         {
-                            movewhichPawn(&brd,false,activePawns);
+                            activePawns[5] = computer.pop();
+                            csize--;
+                            placeonTrack(&activePawns[5], false, &brd);
                             brd.printBoard(brd.b);
-                            if(drawnCard==2)
-                                {
-                                    cout<<"Here3"<<endl;
-                                    Draw(deckOfcards);
-                                    cout<<"The computer has drawn " <<drawnCard<<endl;
-                                    movewhichPawn(&brd,false,activePawns);
-                                    brd.printBoard(brd.b);
-                                }
+                            if (drawnCard == 2)
+                            {
+                                cout << "Here3" << endl;
+                                Draw(deckOfcards);
+                                cout << "The computer has drawn " << drawnCard << endl;
+                                movewhichPawn(&brd, false, activePawns);
+                                brd.printBoard(brd.b);
+                            }
                         }
-                }   
-            else if(drawnCard > 0)
+                        else if (computer.length() == 1)
+                        {
+                            activePawns[6] = computer.pop();
+                            csize--;
+                            placeonTrack(&activePawns[6], false, &brd);
+                            brd.printBoard(brd.b);
+                            if (drawnCard == 2)
+                            {
+                                cout << "Here3" << endl;
+                                Draw(deckOfcards);
+                                cout << "The computer has drawn " << drawnCard << endl;
+                                movewhichPawn(&brd, false, activePawns);
+                                brd.printBoard(brd.b);
+                            }
+                        }
+                        else
+                        {
+                            activePawns[7] = computer.pop();
+                            csize--;
+                            placeonTrack(&activePawns[7], false, &brd);
+                            brd.printBoard(brd.b);
+                            if (drawnCard == 2)
+                            {
+                                cout << "Here3" << endl;
+                                Draw(deckOfcards);
+                                cout << "The computer has drawn " << drawnCard << endl;
+                                movewhichPawn(&brd, false, activePawns);
+                                brd.printBoard(brd.b);
+                            }
+                        }
+                    }
+                }
+                else if (computer.length() == 2 && brd.b[15][11] != '.')
                 {
-                if(computer.length() < 2)
-                    {   movewhichPawn(&brd,false,activePawns);
+                    movePawn(&activePawns[4], drawnCard, &brd, activePawns);
+                    brd.printBoard(brd.b);
+                    if (drawnCard == 2)
+                    {
+                        cout << "Here3" << endl;
+                        Draw(deckOfcards);
+                        cout << "The computer has drawn " << drawnCard << endl;
+                        movePawn(&activePawns[4], drawnCard, &brd, activePawns);
                         brd.printBoard(brd.b);
                     }
-                else
-                    {
-                        if(computer.length()<3)
-                        {movePawn(&activePawns[4],drawnCard,&brd,activePawns);
-                        brd.printBoard(brd.b);}
-                    }
-        }
-        //else   drawn zero case
-         }
 
-//Useless
-    bool h;
-    cout<<"out?";
-    cin>>h;
-    if(h)
-    break;
- //To check if all pawns of the computer are pushed to the destination stack
-    if(DC.length()==3)
-    { winner=false;
-        break;}
-}
-//Annoucing the winner
-if(winner)
-cout<< "Congrats, You won\n";
-else
-cout<< "Hard luck, the computer won\n";
-bool exit;
-cout<<endl<<"would you like to play again or to exit? (If again enter 1 if not enter 0)\n";
-cin>>exit;
+                }
+                else
+                {
+                    movewhichPawn(&brd, false, activePawns);
+                    brd.printBoard(brd.b);
+                    if (drawnCard == 2)
+                    {
+                        cout << "Here3" << endl;
+                        Draw(deckOfcards);
+                        cout << "The computer has drawn " << drawnCard << endl;
+                        movewhichPawn(&brd, false, activePawns);
+                        brd.printBoard(brd.b);
+                    }
+                }
+            }
+            else if (drawnCard > 0)
+            {
+                if (computer.length() < 2)
+                {
+                    movewhichPawn(&brd, false, activePawns);
+                    brd.printBoard(brd.b);
+                }
+                else
+                {
+                    if (computer.length() < 3)
+                    {
+                        movePawn(&activePawns[4], drawnCard, &brd, activePawns);
+                        brd.printBoard(brd.b);
+                    }
+                }
+            }
+            //else   drawn zero case
+        }
+
+        //Useless
+        bool h;
+        cout << "out?";
+        cin >> h;
+        if (h)
+            break;
+        //To check if all pawns of the computer are pushed to the destination stack
+        if (DC.length() == 3)
+        {
+            winner = false;
+            break;
+        }
+    }
+    //Annoucing the winner
+    if (winner)
+        cout << "Congrats, You won\n";
+    else
+        cout << "Hard luck, the computer won\n";
+    bool exit;
+    cout << endl << "would you like to play again or to exit? (If again enter 1 if not enter 0)\n";
+    cin >> exit;
 }
 
 
