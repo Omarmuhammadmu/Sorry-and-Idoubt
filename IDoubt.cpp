@@ -315,8 +315,9 @@ int checkDoubt(char x)
 // function used to generate rando decision
 int randDecision()
 {
-    srand(time(0)); // intialize seed
-    return rand() % 4;
+    unsigned int time_ui = static_cast<unsigned int>(time(NULL) % 1000);
+    int x = rand() % 4;
+    return x;
 }
 
 // main play fun
@@ -528,5 +529,5 @@ int main()
             exit = true;
         }
     }
-    cout << "se you soon ^-^\n";
+    cout << "see you soon ^-^\n";
 }
