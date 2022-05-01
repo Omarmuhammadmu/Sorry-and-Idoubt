@@ -355,6 +355,28 @@ bool trivialBump(pawn* check, board brd, pawn sentPawns[8])
     delPawnfrmArr(ch, sentPawns);
     return false;
 }
+void slideBump(pawn* check, board brd, pawn sentPawns[8], bool sliding) {
+    if (slotChecker(brd, check->x, check->y)) //do nothing if theres no char
+        return ;
+    char ch = brd.b[check->x][check->y];
+    int i;
+    for (i = 0; i < 8; i++)
+        if (sentPawns[i].s == ch)
+            break;
+    if ((ch == 'A' || ch == 'B' || ch == 'C' || ch == 'D'))// user pawn will return to base
+    {
+        user.push(sentPawns[i]);
+        usize++;
+    }
+    else if ((ch == 'Z' || ch == 'X' || ch == 'Y' || ch == 'W'))// computer pawn will return to base
+    {
+        computer.push(sentPawns[i]);
+        csize++;}
+    brd.b[sentPawns[i].x][sentPawns[i].y] = '.';
+    cout << "Pawn " << ch << " was sent home\n";
+    delPawnfrmArr(ch, sentPawns);
+    return;
+}
 void slide(pawn check, board brd, pawn sentPawns[8], bool sm) {
     for (int i = 1; i < 4 - sm; i++)
     {
@@ -368,11 +390,13 @@ void slide(pawn check, board brd, pawn sentPawns[8], bool sm) {
             temp.x += i; // slide down
         else
             temp.x -= i; // slide up
-        trivialBump(&temp, brd, sentPawns);
-   
-}
+        slideBump(&temp, brd, sentPawns,true);
+
+    }
 
 }
+
+
 void movePawn(pawn*, int, board*, pawn[]);
 
 //To check whether the pawn is movable or not
@@ -504,7 +528,9 @@ void moveAnotherPawn(pawn* mover, int steps, board* brd, pawn sentPawns[8]) {// 
     }
 }
 
-void trivialSeq(pawn* check, board *brd, pawn sentPawns[8], int x,int y ,int steps) {
+void trivialSeq(pawn* check, board *brd, pawn sentPawns[8], int x,int y ,int steps,bool isSliding) {
+   if(isSliding)
+        {return;}
     if (trivialBump(check, *brd, sentPawns))
     {
         check->y = y;
@@ -519,6 +545,7 @@ void trivialSeq(pawn* check, board *brd, pawn sentPawns[8], int x,int y ,int ste
 //Function to move pawn on the board 
 void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
 { 
+    bool isSliding = false;
     int x_cor = mover->x, y_cor = mover->y;
     //move inside the safe zone
     if (mover->safe)
@@ -535,7 +562,7 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
             {
                 brd->b[mover->x][2] = '.';
                 mover->x += steps;
-                trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps);
+                trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps,false);
                 brd->b[mover->x][2] = mover->s;
             }
             else
@@ -553,8 +580,8 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
             {
                 brd->b[mover->x][13] = '.';
                 mover->x -= steps;
-                brd->b[mover->x][2] = mover->s;
-                trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps);
+                brd->b[mover->x][13] = mover->s;
+                trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps,false);
             }
             else
                 moveAnotherPawn(mover, steps, brd, sentPawns);
@@ -638,12 +665,12 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
     }
 
     char ch = brd->b[mover->x][mover->y];
-    trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps);
 
 
     //slider
     if ((mover->x == 0 && mover->y == 9) || (mover->x == 9 && mover->y == 15) || (mover->x == 15 && mover->y == 6) || (mover->x == 6 && mover->y == 0))
     {
+        isSliding = true;
         slide(*mover, *brd, sentPawns, 0);
         movePawn(mover, 4, brd, sentPawns);
         brd->b[0][9] = '>';
@@ -655,7 +682,8 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
     {
         if (((mover->x == 0 && mover->y == 1) && mover->red) || ((mover->x == 15 && mover->y == 14) && !mover->red)) // return if the smaller slider has the same colour
             return;
-
+        
+        isSliding = true;
         slide(*mover, *brd, sentPawns, 1);
         movePawn(mover, 3, brd, sentPawns);
         brd->b[14][0] = '^';
@@ -663,6 +691,7 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
         brd->b[1][15] = 'v';
         brd->b[0][1] = '>';
     }
+    trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps,isSliding);
     brd->b[mover->x][mover->y] = mover->s; // new indicies
 }
 
@@ -1295,7 +1324,7 @@ int main() {
 }
         }
 //To check if all pawns of the user are pushed to the destination stack
-    if (DU.length() == 3)
+    if (DU.length() == 1)
     {
         winner = true;
         break;
@@ -1426,15 +1455,8 @@ int main() {
                 sorryCard(false, activePawns,&brd);
             }
         }
-
-        //Useless
-        bool h;
-        cout << "out?";
-        cin >> h;
-        if (h)
-            break;
         //To check if all pawns of the computer are pushed to the destination stack
-        if (DC.length() == 3)
+        if (DC.length() == 1)
         {
             winner = false;
             break;
@@ -1449,14 +1471,6 @@ int main() {
     cout << endl << "would you like to play again or to exit? (If again enter 1 if not enter 0)\n";
     cin >> exit;
 }
-
-
-
-//Functions that need to be written
-
-//Sorry card
-//Push in DU,DC & Entering Safe road
-//test bump & bump while sliding
 
 
 
