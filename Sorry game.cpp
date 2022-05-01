@@ -236,9 +236,18 @@ void deck::queueDeck()
 //Game's rule
 void gameRules()
 {
-    cout << endl << "                                         Sorry game!                                         \n";
+    cout<<endl<<endl<<endl;
+    cout<<"  $$$$$$\\   $$$$$$\\  $$$$$$$\\  $$$$$$$\\ $$\\     $$\\        $$$$$$\\   $$$$$$\\  $$\\      $$\\ $$$$$$$$\\\n" 
+<<"$$  _$$\\ $$  _$$\\ $$  _$$\\ $$  _$$\\\\$$\\   $$  |      $$  _$$\\ $$  _$$\\ $$$\\    $$$ |$$  ___|\n"
+<<"$$ /  \\_|$$ /  $$ |$$ |  $$ |$$ |  $$ |\\$$\\ $$  /       $$ /  \\_|$$ /  $$ |$$$$\\  $$$$ |$$ |      \n"
+<<"\\$$$$$$\\  $$ |  $$ |$$$$$$$  |$$$$$$$  | \\$$$$  /        $$ |$$$$\\ $$$$$$$$ |$$\\$$\\$$ $$ |$$$$$\\    \n"
+ <<" \\__$$\\ $$ |  $$ |$$  _$$< $$  _$$<   \\$$  /         $$ |\\_$$ |$$  _$$ |$$ \\$$$  $$ |$$  _|   \n"
+<<"$$\\   $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |   $$ |          $$ |  $$ |$$ |  $$ |$$ |\\$  /$$ |$$ |      \n"
+<<"\\$$$$$$  | $$$$$$  |$$ |  $$ |$$ |  $$ |   $$ |          \\$$$$$$  |$$ |  $$ |$$ | \\_/ $$ |$$$$$$$$\\ \n"
+ <<" \\___/  \\__/ \\|  \\|\\|  \\|   \\|           \\__/ \\|  \\|\\|     \\|\\___|\n";
 
     //Rules
+    cout<<endl<<endl;
     cout << " Rules of the game\n" << "-------------------------------\n" << " - Each player has 4 pawns.\n";
     cout << " - If it's your first turn and you do not draw a card that lets you start a pawn out, you forfeit(skip) your turn.\n";
     cout << " - To move a pawn from your start out onto the track, you must draw either a 1 or a 2.\n" << " If it is a 2 put a pawn on the main track if it was on start and draw again. Otherwise, move pawn forward 2 steps and draw again. \n";
@@ -254,6 +263,8 @@ void gameRules()
 
     cout << " All CLEAR?!\n" << " Let's get started!\n";
     system("pause");
+    cout << " -----------------------------------------------------------------------------------------------";
+
 }
 
 //Game functions 
@@ -395,7 +406,6 @@ void slide(pawn check, board brd, pawn sentPawns[8], bool sm) {
     }
 
 }
-
 
 void movePawn(pawn*, int, board*, pawn[]);
 
@@ -759,13 +769,13 @@ int getActivepawnindex(bool UOC, pawn sentPawns[8])
     }
     else
     {
-        cout<<"One pawn user is executing2:\n";
+        //cout<<"One pawn user is executing2:\n";
         for (int i = 4; i < 7; i++)
             {
                 if (sentPawns[i].s != '\0')
                     {
                         onlyActivepawn = i;
-                        cout<<sentPawns[i].s<<endl;
+                        //cout<<sentPawns[i].s<<endl;
                         break;}
             }
     }
@@ -867,7 +877,6 @@ int moveACW(board brd, pawn sentPawns[8], bool UOC)
 {
     if(UOC)
     {
-        cout<<"Enteres user Loop\n";
         for (int i = 0; i < 4; i++)
             {
                 for (int j = 15; j >=0; j--)
@@ -898,7 +907,7 @@ int moveACW(board brd, pawn sentPawns[8], bool UOC)
             }
     }
     else
-    {   cout<<"Enteres computer Loop\n";
+    { 
         for (int i = 0; i < 4; i++)
         {for (int j = 15; j >=0; j--)
             {
@@ -1021,11 +1030,11 @@ void sorryCard(bool UOC, pawn sentPawns[8],board* brd)
                     }
                 else
                     {   //Find the only active pawn
-                        cout<<"The only active pawn is executing:\n";
+                       // cout<<"The only active pawn is executing:\n";
                         char OAP; //Only Active Pawn(OAP)
                         replacedPawnindex = getActivepawnindex(false, sentPawns);
                         OAP = sentPawns[replacedPawnindex].s;
-                        cout<<OAP<<endl;
+                        //cout<<OAP<<endl;
                         pawnIsinsaferoad = sentPawns[replacedPawnindex].safe; 
                     }
                 if(!pawnIsinsaferoad)
@@ -1162,7 +1171,7 @@ void twoCard (bool UOC,pawn sentPawns[8],board* brd, deck deckOfcards)
 //Driver code
 int main() {
 
-    //gameRules();
+    gameRules();
     //Initlaizing Board, the deck of cards and 4 pawns for each player.
     board brd;
     deck deckOfcards;
@@ -1241,7 +1250,6 @@ int main() {
                             brd.printBoard(brd.b);
                             if (drawnCard == 2)
                             {
-                                cout << "Here2" << endl;
                                 twoCard(true,activePawns,&brd,deckOfcards);
                             }
                         }
@@ -1254,7 +1262,6 @@ int main() {
                             brd.printBoard(brd.b);
                             if (drawnCard == 2)
                             {
-                                cout << "Here2" << endl;
                                 twoCard(true,activePawns,&brd,deckOfcards);
                             }
                         }
@@ -1262,7 +1269,6 @@ int main() {
                     else
                     {
                         //Need to make the locating be varying (pop in the first free array from 0 to 3)
-                        cout << "Here\n";
                         int firstFreeindex;
                         //find first free index in user
                         firstFreeindex = nearfreeindex(true, activePawns);
@@ -1274,7 +1280,6 @@ int main() {
                         brd.printBoard(brd.b);
                         if (drawnCard == 2)
                             {
-                                cout << "Here2" << endl;
                                 twoCard(true,activePawns,&brd,deckOfcards);
                             }
                     }
@@ -1286,7 +1291,6 @@ int main() {
                     brd.printBoard(brd.b);
                     if (drawnCard == 2)
                     {
-                        cout << "Here2" << endl;
                         twoCard(true,activePawns,&brd,deckOfcards);
                     }
                 }
@@ -1296,7 +1300,6 @@ int main() {
                     brd.printBoard(brd.b);
                     if (drawnCard == 2)
                     {
-                        cout << "Here2" << endl;
                         twoCard(true,activePawns,&brd,deckOfcards);
                     }
                 }
@@ -1324,7 +1327,7 @@ int main() {
 }
         }
 //To check if all pawns of the user are pushed to the destination stack
-    if (DU.length() == 1)
+    if (DU.length() == 0)
     {
         winner = true;
         break;
@@ -1367,29 +1370,25 @@ int main() {
                             brd.printBoard(brd.b);
                             if (drawnCard == 2)
                             {
-                                cout << "Here2" << endl;
                                twoCard(false,activePawns,&brd,deckOfcards);
                             }
                         }
                         else
                         {
-                            cout<<"One pawn computer is executing:\n";
+                            //cout<<"One pawn computer is executing:\n";
                             int onlyActivepawn;
                             onlyActivepawn=getActivepawnindex(false,activePawns);
                             movePawn(&activePawns[onlyActivepawn], drawnCard, &brd, activePawns);
                             brd.printBoard(brd.b);
                             if (drawnCard == 2)
                             {
-                                cout << "Here2" << endl;
                                 twoCard(false,activePawns,&brd,deckOfcards);
                             }
                         }
                     }
                     else
                     {
-                        cout << "Here4\n";
                         //Need to make the locating be varying (pop in the first free array from 4 to 7)
-                        cout << "Here\n";
                         int firstFreeindex;
                         //find first free index in user
                         firstFreeindex = nearfreeindex(false, activePawns);
@@ -1402,7 +1401,6 @@ int main() {
                         brd.printBoard(brd.b);
                         if (drawnCard == 2)
                             {
-                                cout << "Here3" << endl;
                                 twoCard(false,activePawns,&brd,deckOfcards);
                             }
                     }
@@ -1415,7 +1413,6 @@ int main() {
                     brd.printBoard(brd.b);
                     if (drawnCard == 2)
                     {
-                        cout << "Here3" << endl;
                         twoCard(false,activePawns,&brd,deckOfcards);
                     }
 
@@ -1426,7 +1423,6 @@ int main() {
                     brd.printBoard(brd.b);
                     if (drawnCard == 2)
                     {
-                        cout << "Here3" << endl;
                         twoCard(false,activePawns,&brd,deckOfcards);
                     }
                 }
@@ -1436,7 +1432,6 @@ int main() {
                 if (computer.length() < 2)
                 {
                     movewhichPawn(&brd, false, activePawns);
-                    cout<<"There is more than 1 pawn\n";
                     brd.printBoard(brd.b);
                 }
                 else
@@ -1456,7 +1451,7 @@ int main() {
             }
         }
         //To check if all pawns of the computer are pushed to the destination stack
-        if (DC.length() == 1)
+        if (DC.length() == 0)
         {
             winner = false;
             break;
@@ -1464,16 +1459,21 @@ int main() {
     }
     //Annoucing the winner
     if (winner)
-        cout << "Congrats, You won\n";
+        {
+            cout << " $$$$$$\\   $$$$$$\\  $$\\   $$\\  $$$$$$\\  $$$$$$$\\   $$$$$$\\ $$$$$$$$\\  $$$$$$\\            $$\\     $$\\  $$$$$$\\  $$\\   $$\\       $$\\      $$\\  $$$$$$\\  $$\\   $$\\ $$\\\n" 
+<<"$$  _$$\\ $$  _$$\\ $$$\\  $$ |$$  _$$\\ $$  _$$\\ $$  _$$\\\\$$  _|$$  _$$\\           \\$$\\   $$  |$$  _$$\\ $$ |  $$ |      $$ | $\\  $$ |$$  __$$\\ $$$\\  $$ |$$ |\n"
+<<"$$ /  \\_|$$ /  $$ |$$$$\\ $$ |$$ /  \\|$$ |  $$ |$$ /  $$ |  $$ |   $$ /  \\_|           \\$$\\ $$  / $$ /  $$ |$$ |  $$ |      $$ |$$$\\ $$ |$$ /  $$ |$$$$\\ $$ |$$ |\n"
+<<"$$ |      $$ |  $$ |$$ $$\\$$ |$$ |$$$$\\ $$$$$$$  |$$$$$$$$ |  $$ |   \\$$$$$$\\              \\$$$$  /  $$ |  $$ |$$ |  $$ |      $$ $$ $$\\$$ |$$ |  $$ |$$ $$\\$$ |$$ |\n"
+<<"$$ |      $$ |  $$ |$$ \\$$$$ |$$ |\\_$$ |$$  _$$< $$  _$$ |  $$ |    \\__$$\\              \\$$  /   $$ |  $$ |$$ |  $$ |      $$$$  $$$$ |$$ |  $$ |$$ \\$$$$ |\\_|\n"
+<<"$$ |  $$\\ $$ |  $$ |$$ |\\$$$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |  $$ |   $$\\   $$ |              $$ |    $$ |  $$ |$$ |  $$ |      $$$  / \\$$$ |$$ |  $$ |$$ |\\$$$ |    \n"
+<<"\\$$$$$$  | $$$$$$  |$$ | \\$$ |\\$$$$$$  |$$ |  $$ |$$ |  $$ |  $$ |   \\$$$$$$  |$$\\           $$ |     $$$$$$  |\\$$$$$$  |      $$  /   \\$$ | $$$$$$  |$$ | \\$$ |$$\\\n" 
+<<" \\___/  \\__/ \\|  \\| \\__/ \\|  \\|\\|  \\|  \\|    \\__/ $  |          \\|     \\__/  \\__/       \\/     \\| \\__/ \\|  \\|\\_|\n"
+<<"                                                                               \\_/                                                                                  \n";;
+        }
     else
         cout << "Hard luck, the computer won\n";
-    bool exit;
-    cout << endl << "would you like to play again or to exit? (If again enter 1 if not enter 0)\n";
-    cin >> exit;
+    system("Pause");
+    // bool exit;
+    // cout << endl << "would you like to play again or to exit? (If again enter 1 if not enter 0)\n";
+    // cin >> exit;
 }
-
-
-
-
-
-
