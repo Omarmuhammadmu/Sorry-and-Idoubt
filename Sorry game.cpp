@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <time.h>
 #include <windows.h>
-#include <limits>
 using namespace std;
 
 //Global variables
@@ -337,20 +336,21 @@ bool trivialBump(pawn* check, board brd, pawn sentPawns[8])
     for (i = 0; i < 8; i++)
         if (sentPawns[i].s == ch)
             break;
-
+    brd.b[sentPawns[i].x][sentPawns[i].y] = '.';
     if ((ch == 'A' || ch == 'B' || ch == 'C' || ch == 'D') && !check->red)// user pawn will return to base
     {
+        sentPawns[i]= {.s=sentPawns[i].s,.x=1, .y=4, .red=true, .safe =false };
         user.push(sentPawns[i]);
         usize++;
     }
     else if ((ch == 'Z' || ch == 'X' || ch == 'Y' || ch == 'W') && check->red)// computer pawn will return to base
     {
+        sentPawns[i]= {.s=sentPawns[i].s,.x=14, .y=11, .red=false, .safe =false };
         computer.push(sentPawns[i]);
         csize++;
     }
     else
         return true;
-    brd.b[sentPawns[i].x][sentPawns[i].y] = '.';
     cout << "Pawn " << ch << " was sent home\n";
     delPawnfrmArr(ch, sentPawns);
     return false;
@@ -425,12 +425,6 @@ bool isMovable(pawn mover, int steps, board* brd)
    return slotChecker(*brd, mover.x, mover.y);
 }
 
-//
-// int isMovable(pawn sentPawns[8],bool isUser)
-// {
-//     if (isUser)//****************************
-
-// }
 void moveAnotherPawn(pawn* mover, int steps, board* brd, pawn sentPawns[8]) {// for user only **** needs to be adj. for computer
     if (mover->red) 
     {
@@ -453,18 +447,26 @@ void moveAnotherPawn(pawn* mover, int steps, board* brd, pawn sentPawns[8]) {// 
         {
             cout << "Which Pawn will you move2? \n";
             char ch;
+            bool break1 = false;
             while (true)
             {
                 cin >> ch;
                 for (int i = 0; i < 4; i++)
                 {
                     if (sentPawns[i].s == ch && sentPawns[i].s != mover->s && isMovable(sentPawns[i],steps,brd))
-                        break;
+                        {
+                            break1 = true;
+                            break;
+                        }
                 }
+                if(true)
+                break;
+                
                 cout << "Please choonse another pawn \n";
             }
             movePawn(&sentPawns[whichtoMove(ch, sentPawns)], steps, brd, sentPawns);
-            cout << " Pawn " << ch << " was moved by " << steps<<endl;
+            cout << " Pawn " << ch << " was moved by " << steps<<endl;  //Recursion happens (Pawn C was moved by 12
+                                                                                            //Pawn A was moved by 12)
             return;
         }
     }
@@ -629,25 +631,24 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
     {
         slide(*mover, *brd, sentPawns, 0);
         movePawn(mover, 4, brd, sentPawns);
-
+        brd->b[0][9] = '>';
+        brd->b[6][0] = '^';
+        brd->b[15][6] = '<';
+        brd->b[9][15] = 'v';
     }
     if ((mover->x == 0 && mover->y == 1) || (mover->x == 1 && mover->y == 15) || (mover->x == 15 && mover->y == 14) || (mover->x == 14 && mover->y == 0))
     {
         if (((mover->x == 0 && mover->y == 1) && mover->red) || ((mover->x == 15 && mover->y == 14) && !mover->red)) // return if the smaller slider has the same colour
             return;
- 
+
         slide(*mover, *brd, sentPawns, 1);
         movePawn(mover, 3, brd, sentPawns);
+        brd->b[14][0] = '^';
+        brd->b[15][14] = '<';
+        brd->b[1][15] = 'v';
+        brd->b[0][1] = '>';
     }
     brd->b[mover->x][mover->y] = mover->s; // new indicies
-    brd->b[0][9] = '>';
-    brd->b[6][0] = '^';
-    brd->b[15][6] = '<';
-    brd->b[9][15] = 'v';
-    brd->b[14][0] = '^';
-    brd->b[15][14] = '<';
-    brd->b[1][15] = 'v';
-    brd->b[0][1] = '>';
 }
 
 //Function to check active pawns[among computer pawns]
@@ -864,10 +865,12 @@ void sorryCard(bool UOC, pawn sentPawns[8],board* brd)
                         sentPawns[firstFreeindex].y = sentPawns[replacedPawnindex].y;
                         brd->b[sentPawns[firstFreeindex].x][sentPawns[firstFreeindex].y] = sentPawns[firstFreeindex].s;
                         //push computer
+                        sentPawns[replacedPawnindex]= {.s=sentPawns[replacedPawnindex].s,.x=14, .y=11, .red=false, .safe =false };
                         computer.push(sentPawns[replacedPawnindex]);
                         csize++;
                         //delete replaced from the sentPawns array.(i.e., activePawns)
                         sentPawns[replacedPawnindex] = {'\0',-1,-1,false,false};
+                        brd->printBoard(brd->b);
                         return;
                     }
                 else
@@ -888,10 +891,12 @@ void sorryCard(bool UOC, pawn sentPawns[8],board* brd)
                         sentPawns[firstFreeindex].y = sentPawns[replacedPawnindex].y;
                         brd->b[sentPawns[replacedPawnindex].x][sentPawns[replacedPawnindex].y] = sentPawns[firstFreeindex].s;
                         //push computer
+                        sentPawns[replacedPawnindex]= {.s=sentPawns[replacedPawnindex].s,.x=14, .y=11, .red=false, .safe =false };
                         computer.push(sentPawns[replacedPawnindex]);
                         csize++;
                         //delete replaced from the activePawns array.
                         sentPawns[replacedPawnindex] = {'\0',-1,-1,false,false};
+                        brd->printBoard(brd->b);
                         return;
                     }
                         cout<<"Sorry card rules are not satisfied so the move is skipped\n";
@@ -981,7 +986,9 @@ int main() {
         {
             activePawns[0] = user.pop();
             usize--;
+            trivialBump(&activePawns[0],brd,activePawns);
             placeonTrack(&activePawns[0], true, &brd);
+
             brd.printBoard(brd.b);
             if (drawnCard == 2)
             {twoCard(true,activePawns,&brd,deckOfcards);}
@@ -1048,7 +1055,9 @@ int main() {
                         firstFreeindex = nearfreeindex(true, activePawns);
                         activePawns[firstFreeindex] = user.pop();
                         usize--;
+                        trivialBump(&activePawns[firstFreeindex],brd,activePawns);
                         placeonTrack(&activePawns[firstFreeindex], true, &brd);
+                        //Bump computer if exist****************************************
                         brd.printBoard(brd.b);
                         if (drawnCard == 2)
                             {
@@ -1098,7 +1107,8 @@ int main() {
                 }
             }
             else
-            {sorryCard(true, activePawns,&brd);}
+            {sorryCard(true, activePawns,&brd);
+}
         }
 //To check if all pawns of the user are pushed to the destination stack
     if (DU.length() == 3)
@@ -1114,7 +1124,9 @@ int main() {
         {
             activePawns[4] = computer.pop();
             csize--;
+            trivialBump(&activePawns[4],brd,activePawns);
             placeonTrack(&activePawns[4], false, &brd);
+            //Bump user if exist**************************************************
             brd.printBoard(brd.b);
             if (drawnCard == 2)
             {
@@ -1170,7 +1182,9 @@ int main() {
                         firstFreeindex = nearfreeindex(false, activePawns);
                         activePawns[firstFreeindex] = computer.pop();
                         csize--;
+                        trivialBump(&activePawns[firstFreeindex],brd,activePawns);
                         placeonTrack(&activePawns[firstFreeindex], false, &brd);
+                        //Bump user if exist***********************************************
                         brd.printBoard(brd.b);
                         if (drawnCard == 2)
                             {
@@ -1208,6 +1222,7 @@ int main() {
                 if (computer.length() < 2)
                 {
                     movewhichPawn(&brd, false, activePawns);
+                    cout<<"There is more than 1 pawn\n";
                     brd.printBoard(brd.b);
                 }
                 else
