@@ -1473,7 +1473,4 @@ int main() {
     else
         cout << "Hard luck, the computer won\n";
     system("Pause");
-    // bool exit;
-    // cout << endl << "would you like to play again or to exit? (If again enter 1 if not enter 0)\n";
-    // cin >> exit;
 }
