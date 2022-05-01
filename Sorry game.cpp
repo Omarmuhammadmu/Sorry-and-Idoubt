@@ -754,7 +754,7 @@ int getActivepawnindex(bool UOC, pawn sentPawns[8])
     int onlyActivepawn;
     if(UOC)
     {
-        cout<<"One pawn user is executing1:\n";
+        //cout<<"One pawn user is executing1:\n";
         for (int i = 0; i < 4; i++)
             {
                 //Choose inside the safe road or outside
@@ -1254,7 +1254,7 @@ int main() {
                         }
                         else
                         {
-                            cout<<"One pawn user is executing3:\n";
+                            //cout<<"One pawn user is executing3:\n";
                             int onlyActivepawn;
                             onlyActivepawn=getActivepawnindex(true,activePawns);
                             movePawn(&activePawns[onlyActivepawn], drawnCard, &brd, activePawns);
