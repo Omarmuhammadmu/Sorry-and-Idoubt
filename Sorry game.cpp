@@ -535,8 +535,8 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
             {
                 brd->b[mover->x][2] = '.';
                 mover->x += steps;
-                brd->b[mover->x][2] = mover->s;
                 trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps);
+                brd->b[mover->x][2] = mover->s;
             }
             else
                 moveAnotherPawn(mover, steps, brd, sentPawns);
@@ -561,9 +561,9 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
         }
         return;
     }
-
+    //*********************************************************************
     //enter the safe zone
-    if (mover->red && mover->x < 12 && mover->y < 3 && ((-mover->x + mover->y + steps - 2) > 0) && ((-mover->x + mover->y + steps - 2) < 7) && !mover->safe) {
+    if (mover->red && mover->x < 11 && mover->y < 3 && ((-mover->x + mover->y + steps - 2) > -1) && ((-mover->x + mover->y + steps - 2) < 7) && !mover->safe) {
         brd->b[mover->x][mover->y] = '.';
         mover->x = -mover->x + mover->y + steps - 2;
         mover->y = 2;
@@ -574,7 +574,7 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
         }
         return;
     }
-    else if (!mover->red && mover->x > 5 && mover->y > 12 && ((47 - steps - mover->x - mover->y) < 16) && ((47 - steps - mover->x - mover->y) > 9) && !mover->safe) {
+    else if (!mover->red && mover->x > 4 && mover->y > 12 && ((47 - steps - mover->x - mover->y) < 16) && ((47 - steps - mover->x - mover->y) > 8) && !mover->safe) {
         brd->b[mover->x][mover->y] = '.';
         mover->x = 47 - steps - mover->x - mover->y;
         mover->y = 13;
@@ -719,10 +719,13 @@ int getActivepawnindex(bool UOC, pawn sentPawns[8])
         cout<<"One pawn user is executing1:\n";
         for (int i = 0; i < 4; i++)
             {
-                if (sentPawns[i].s != '\0' && sentPawns[i].safe ==false)
+                //Choose inside the safe road or outside
+                //if (sentPawns[i].s != '\0' && sentPawns[i].safe ==false)
+                if (sentPawns[i].s != '\0')
                     {
                         onlyActivepawn = i;
                         break;}
+                
             }
     }
     else
@@ -831,25 +834,73 @@ int nearfreeindex(bool UOC, pawn sentPawns[8])
 }
 
 //Function to return the index of nearest replacable user pawn******************* 
-int moveACW(board brd, pawn sentPawns[8]) {
-    for (int i = 0; i < 4; i++)
-        for (int j = 15; j >=0; j--)
-        {
-            if(i == 0)      //Right vertical
-                if (brd.b[j][15] == 'A' || brd.b[j][15] == 'B'|| brd.b[j][15] == 'C'|| brd.b[j][15] == 'D')
-                    return whichtoMove(brd.b[j][15],sentPawns);
-            else if(i == 1) //Upper horizontal
-                if (brd.b[0][j] == 'A' || brd.b[0][j] == 'B'|| brd.b[0][j] == 'C'|| brd.b[0][j] == 'D')
-                    return whichtoMove(brd.b[0][j],sentPawns);
-            else if(i == 2) //Left vertical
-                if (brd.b[15- j][0] == 'A' || brd.b[15- j][0] == 'B'|| brd.b[15- j][0] == 'C'|| brd.b[15- j][0] == 'D')
-                    return whichtoMove(brd.b[15- j][0],sentPawns);   
-            else            //Lower horizontal
-                if (15- j<12)
-                 if(brd.b[15][15- j] == 'A' || brd.b[15][15- j] == 'B'|| brd.b[15][15- j] == 'C'|| brd.b[15][15- j] == 'D')
-                    return whichtoMove(brd.b[15][15- j],sentPawns);                 
+int moveACW(board brd, pawn sentPawns[8], bool UOC)
+{
+    if(UOC)
+    {
+        cout<<"Enteres user Loop\n";
+        for (int i = 0; i < 4; i++)
+            {
+                for (int j = 15; j >=0; j--)
+                {
+                if(i == 0)      //Right vertical
+                    {if (brd.b[j][15] == 'W' || brd.b[j][15] == 'X'|| brd.b[j][15] == 'Y'|| brd.b[j][15] == 'Z')
+                        {return 1;}
+                        continue;}
+                else if(i == 1) //Upper horizontal
+                        {if ((15 - j) != 3)
+                            {
+                                if (brd.b[0][j] == 'W' || brd.b[0][j] == 'X'|| brd.b[0][j] == 'Y'|| brd.b[0][j] == 'Z')
+                                    {return 2;}
+                                continue;
+                            }
+                            continue;}
+                else if(i == 2) //Left vertical
+                        {
+                            if (brd.b[15- j][0] == 'W' || brd.b[15- j][0] == 'X'|| brd.b[15- j][0] == 'Y'|| brd.b[15- j][0] == 'Z')
+                            {return 3;}
+                            continue;}
+                else            //Lower horizontal
+                   {
+                       if(brd.b[15][15- j] == 'W' || brd.b[15][15- j] == 'X'|| brd.b[15][15- j] == 'Y'|| brd.b[15][15- j] == 'Z')
+                        {return 4;}
+                        continue;}               
+                }
+            }
+    }
+    else
+    {   cout<<"Enteres computer Loop\n";
+        for (int i = 0; i < 4; i++)
+        {for (int j = 15; j >=0; j--)
+            {
+                if(i == 0)      //Right vertical
+                    {
+                        if (brd.b[j][15] == 'A' || brd.b[j][15] == 'B'|| brd.b[j][15] == 'C'|| brd.b[j][15] == 'D')
+                            {return whichtoMove(brd.b[j][15],sentPawns);}
+                            continue;}
+                else if(i == 1) //Upper horizontal
+                    {
+                        if (brd.b[0][j] == 'A' || brd.b[0][j] == 'B'|| brd.b[0][j] == 'C'|| brd.b[0][j] == 'D')
+                        {return whichtoMove(brd.b[0][j],sentPawns);}
+                        continue;}
+                else if(i == 2) //Left vertical
+                    {
+                        if (brd.b[15- j][0] == 'A' || brd.b[15- j][0] == 'B'|| brd.b[15- j][0] == 'C'|| brd.b[15- j][0] == 'D')
+                        {return whichtoMove(brd.b[15- j][0],sentPawns);}
+                        continue;} 
+                else            //Lower horizontal
+                    {
+                        if (15- j != 12)
+                        {
+                            if(brd.b[15][15- j] == 'A' || brd.b[15][15- j] == 'B'|| brd.b[15][15- j] == 'C'|| brd.b[15][15- j] == 'D')
+                                {return whichtoMove(brd.b[15][15- j],sentPawns);}
+                                continue;
+                        }
+                        continue;}
+            }               
         }
-    return 0;
+    }
+    return -1;
 }
 
 //Function that check if the number of pawns is either 3 or 2 and are in the safe road
@@ -891,7 +942,7 @@ void sorryCard(bool UOC, pawn sentPawns[8],board* brd)
                 return;
             }
         //Skip if there is no active opponent pawn (They are either unpoped from computer stack or they are all 4 in safe road) 
-        else if (computer.length() == 3 || allSafe)
+        else if (computer.length() == 3 || allSafe || moveACW(*brd,sentPawns,true) == -1 )
             {
                 continuer = false;
                 cout<<"The card is useless\n";
@@ -985,13 +1036,14 @@ void sorryCard(bool UOC, pawn sentPawns[8],board* brd)
                     break;
                 }
             }
+
         if (computer.length() == -1)
             {
                 continuer = false;
                 cout<<"The card is useless\n";
             }
             //Skip if there is no active opponent pawn (They are either unpoped from computer stack or they are all 4 in safe road)
-        else if (user.length() == 3 || allSafe )
+        else if (user.length() == 3 || allSafe || moveACW(*brd,sentPawns,false)== -1)
             {
                 continuer = false;
                 cout<<"The card is useless\n";
@@ -999,7 +1051,7 @@ void sorryCard(bool UOC, pawn sentPawns[8],board* brd)
         //Execute the sorry card rule
         if (continuer)
         {
-            int replacedPawnindex = moveACW(*brd,sentPawns);
+            int replacedPawnindex = moveACW(*brd,sentPawns,false);
             //cout<<"The computer replaced: \n"<<sentPawns[replacedPawnindex].s<<endl<<endl;
             //Pop user stack
             int firstFreeindex;
@@ -1026,19 +1078,21 @@ void sorryCard(bool UOC, pawn sentPawns[8],board* brd)
 
 bool isOpponentchar(char toCheck, bool UOC)
 {
-    char LUC = 'D'; //Last user computer (LUC)
+    char LUC; //Last user computer (LUC)
     if(UOC)
-    LUC = 'Z';
+    {LUC = 'Z';}
     else
-    LUC = 'D';
+    {LUC = 'D';}
+
     for(int i=0; i<3; i++)
     {
         if(toCheck == LUC)
-            return true;
+            {return true;}
         LUC--;
     }
     return false;
 }
+
 //Function to hand if the drawn card is 2
 void twoCard (bool UOC,pawn sentPawns[8],board* brd, deck deckOfcards)
 {
@@ -1312,7 +1366,8 @@ int main() {
                         firstFreeindex = nearfreeindex(false, activePawns);
                         activePawns[firstFreeindex] = computer.pop();
                         csize--;
-                        trivialBump(&activePawns[firstFreeindex],brd,activePawns);
+                        pawn dummy = { activePawns[firstFreeindex].s,  15, 11, true, false };
+                        trivialBump(&dummy,brd,activePawns);
                         placeonTrack(&activePawns[firstFreeindex], false, &brd);
                         //Bump user if exist***********************************************
                         brd.printBoard(brd.b);
