@@ -310,7 +310,7 @@ bool slotChecker(board brd, int x, int y)
         return false;
 }
 
-//Function to return the pawn that will move
+//Function to return the index of pawn that will move
 int whichtoMove(char diff, pawn active[8])
 {
     while (true)
@@ -528,18 +528,18 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
                 moveAnotherPawn(mover, steps, brd, sentPawns);
         }
         else {
-            if (mover->x - steps == 10)
+            if (mover->x - steps == 9)
             {
                 brd->b[mover->x][13] = '.';
                 DC.push(*mover);
                 dcsize++;
                 delPawnfrmArr(mover->s, sentPawns);
             }
-            else if ((mover->x - steps) > 10)
+            else if ((mover->x - steps) > 9)
             {
                 brd->b[mover->x][13] = '.';
                 mover->x -= steps;
-                brd->b[mover->x][2] = mover->s;
+                brd->b[mover->x][13] = mover->s;
             }
         }
         return;
@@ -695,7 +695,7 @@ char computerdesicison(board brd, pawn sentPawns[8])
 
 }
 
-//Function to get active pawn's index
+//Function to get the only active pawn's index
 int getActivepawnindex(bool UOC, pawn sentPawns[8])
 {
     int onlyActivepawn;
@@ -815,26 +815,45 @@ int nearfreeindex(bool UOC, pawn sentPawns[8])
     return index;
 }
 
-
+//Function to return the nearest replacable user pawn 
+pawn moveACW(board brd, pawn sentPawns[8]) {
+    pawn temp;
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+        {
+            temp = sentPawns[j];
+            if ((sentPawns[i].y + sentPawns[i].x) < (sentPawns[j].x + sentPawns[j].y))
+            {
+                sentPawns[j] = sentPawns[i];
+                sentPawns[i] = temp;
+            }
+        }
+    return sentPawns[0];
+}
 
 //Function of sorry card(Computer turn not implemented)
 void sorryCard(bool UOC, pawn sentPawns[8],board* brd)
 {
+    bool continuer = true;
     if (UOC)//Cases of skipping
-    {    bool continuer = true;;
+    {   //Cases of skipping 
         if (user.length() == -1)
             {
                 continuer = false;
                 cout<<"The card is useless\n";
+                return;
             }
-        else if (computer.length() == 4 || (!(checker('W', sentPawns)) && !(checker('X', sentPawns)) && !(checker('Y', sentPawns)) && !(checker('Z', sentPawns))))
+        //Skip if there is no active opponent pawn (They are either unpoped from computer stack or they are all 4 in safe road) 
+        else if (computer.length() == 4 || (!(sentPawns[whichtoMove('W', sentPawns)].safe) && !(sentPawns[whichtoMove('X', sentPawns)].safe) && !(sentPawns[whichtoMove('Y', sentPawns)].safe) && !(sentPawns[whichtoMove('Z', sentPawns)].safe)))
             {
                 continuer = false;
                 cout<<"The card is useless\n";
+                return;
             }
     //Execute the sorry card rule
         if (continuer)
-            {
+            {   int replacedPawnindex;
+                bool pawnIsinsaferoad;
                 int NOAP = 0; //Number of active pawns
                 NOAP = numberofactivePawns(sentPawns, true);
                 if (NOAP == 4 || NOAP == 3 || NOAP == 2)
@@ -842,36 +861,23 @@ void sorryCard(bool UOC, pawn sentPawns[8],board* brd)
                         //Read the pawn that will be replaced from the user and check if he enters a proper one
                         char replaced;
                         cout << "Which pawn would you like to replace?\n";
+                        //Read replaced pawn and check if valid
                         while (true)
                             {
-                                bool breaker; //break the while loop
+                                //Corner case is left undone here*****************
                                 cin >> replaced;
-                                breaker = checker(replaced, sentPawns);
-                                if (breaker)
-                                    break;
+                                if (checker(replaced, sentPawns))
+                                {
+                                    replacedPawnindex = whichtoMove(replaced, sentPawns);
+                                    pawnIsinsaferoad = sentPawns[replacedPawnindex].safe; 
+                                    if(!pawnIsinsaferoad)
+                                        break;
+                                    else
+                                    cout << "Please enter a correct pawn\n";
+                                }
                                 else
                                     cout << "Please enter a correct pawn\n";
                             }
-                        //Get pawn of replaced 
-                        int replacedPawnindex;
-                        replacedPawnindex = whichtoMove(replaced, sentPawns);
-                        //Pop from user stack
-                        int firstFreeindex;
-                        firstFreeindex = nearfreeindex(true, sentPawns);
-                        sentPawns[firstFreeindex] = user.pop();
-                        usize--;
-                        //Assign user x and y coordinates and place on the board
-                        sentPawns[firstFreeindex].x = sentPawns[replacedPawnindex].x;
-                        sentPawns[firstFreeindex].y = sentPawns[replacedPawnindex].y;
-                        brd->b[sentPawns[firstFreeindex].x][sentPawns[firstFreeindex].y] = sentPawns[firstFreeindex].s;
-                        //push computer
-                        sentPawns[replacedPawnindex]= {.s=sentPawns[replacedPawnindex].s,.x=14, .y=11, .red=false, .safe =false };
-                        computer.push(sentPawns[replacedPawnindex]);
-                        csize++;
-                        //delete replaced from the sentPawns array.(i.e., activePawns)
-                        sentPawns[replacedPawnindex] = {'\0',-1,-1,false,false};
-                        brd->printBoard(brd->b);
-                        return;
                     }
                 else
                     {   //Find the only active pawn
@@ -881,12 +887,15 @@ void sorryCard(bool UOC, pawn sentPawns[8],board* brd)
                         replacedPawnindex = getActivepawnindex(false, sentPawns);
                         OAP = sentPawns[replacedPawnindex].s;
                         cout<<OAP<<endl;
-                        //Pop user stack
+                        pawnIsinsaferoad = sentPawns[replacedPawnindex].safe; 
+                    }
+                    if(!pawnIsinsaferoad)
+                    {   //Pop user stack
                         int firstFreeindex;
                         firstFreeindex = nearfreeindex(true, sentPawns);
                         sentPawns[firstFreeindex] = user.pop();
                         usize--;
-                        //initialize user x y 
+                        //Assign user x and y coordinates and place on the board 
                         sentPawns[firstFreeindex].x = sentPawns[replacedPawnindex].x;
                         sentPawns[firstFreeindex].y = sentPawns[replacedPawnindex].y;
                         brd->b[sentPawns[replacedPawnindex].x][sentPawns[replacedPawnindex].y] = sentPawns[firstFreeindex].s;
@@ -899,16 +908,70 @@ void sorryCard(bool UOC, pawn sentPawns[8],board* brd)
                         brd->printBoard(brd->b);
                         return;
                     }
-                        cout<<"Sorry card rules are not satisfied so the move is skipped\n";
+                    cout<<"Sorry card doesn't replace a pawn in the safe road\n";
+                    return;
             }
-    }
+        }
     else
     {
         //Computer sorry card
+        //Cases of skipping 
+        if (computer.length() == -1)
+            {
+                continuer = false;
+                cout<<"The card is useless\n";
+            }
+            //Skip if there is no active opponent pawn (They are either unpoped from computer stack or they are all 4 in safe road)
+        else if (user.length() == 4 || (!(sentPawns[whichtoMove('A', sentPawns)].safe) && !(sentPawns[whichtoMove('B', sentPawns)].safe) && !(sentPawns[whichtoMove('C', sentPawns)].safe) && !(sentPawns[whichtoMove('D', sentPawns)].safe)))
+            {
+                continuer = false;
+                cout<<"The card is useless\n";
+            }
+        //Execute the sorry card rule
+        if (continuer)
+        {
+            //Needs some adjustments**************
+            //Need to adjust in the activepawn array not in the found pawn
+            //activepawn should remains without arrangment
+            pawn replaced = moveACW(*brd,sentPawns);
+            //Pop user stack
+            int firstFreeindex;
+            firstFreeindex = nearfreeindex(false, sentPawns);
+            sentPawns[firstFreeindex] = computer.pop();
+            csize--;
+            //Assign user x and y coordinates and place on the board 
+            sentPawns[firstFreeindex].x = replaced.x;
+            sentPawns[firstFreeindex].y = replaced.y;
+            brd->b[replaced.x][replaced.y] = sentPawns[firstFreeindex].s;
+            //push User 
+            replaced= {.s=replaced.s,.x=1, .y=4, .red=true, .safe =false };
+            user.push(replaced);
+            usize++;
+            //delete replaced from the activePawns array.
+            //sentPawns[replacedPawnindex] = {'\0',-1,-1,false,false};
+            brd->printBoard(brd->b);
+            return;
 
+        }
+        
     }
 }
 
+bool isOpponentchar(char toCheck, bool UOC)
+{
+    char LUC = 'D'; //Last user computer (LUC)
+    if(UOC)
+    LUC = 'Z';
+    else
+    LUC = 'D';
+    for(int i=0; i<3; i++)
+    {
+        if(toCheck == LUC)
+            return true;
+        LUC--;
+    }
+    return false;
+}
 //Function to hand if the drawn card is 2
 void twoCard (bool UOC,pawn sentPawns[8],board* brd, deck deckOfcards)
 {
@@ -998,7 +1061,7 @@ int main() {
             if (drawnCard == 1 || drawnCard == 2)
             {
                 bool movePlace;
-                if ((brd.b[0][4] == '.') && (user.length() != -1))
+                if (((brd.b[0][4] == '.')|| isOpponentchar((brd.b[0][4]),true)) && (user.length() != -1))
                 {
                     cout << "Do you want to move a pawn (Enter 1)  or to place a pawn(Enter 0)?\n";
                     //Corner Case(input is either 1 or 0 only) [if input letter inifinit loop (needs to be fixed)]
@@ -1022,7 +1085,7 @@ int main() {
                     {
                         //Move the pawn function;
                         //Check if there is more than a pawn on board and ask for which to move
-                        if (user.length() < 2)
+                        if (user.length() < 2) //More than two pawns on board
                         {
                             movewhichPawn(&brd, true, activePawns);
                             brd.printBoard(brd.b);
@@ -1057,7 +1120,6 @@ int main() {
                         usize--;
                         trivialBump(&activePawns[firstFreeindex],brd,activePawns);
                         placeonTrack(&activePawns[firstFreeindex], true, &brd);
-                        //Bump computer if exist****************************************
                         brd.printBoard(brd.b);
                         if (drawnCard == 2)
                             {
@@ -1138,7 +1200,7 @@ int main() {
             if (drawnCard == 1 || drawnCard == 2)
             {
                 bool movePlace;
-                if ((brd.b[15][11] == '.') && (computer.length() != -1))
+                if (((brd.b[15][11] == '.') || isOpponentchar((brd.b[0][4]),false)) && (computer.length() != -1))
                 {
                     srand(time(NULL)); //Randomize seed initialization
                     movePlace = rand() % 2; // Generate a random number between 0 and 1
