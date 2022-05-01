@@ -252,7 +252,6 @@ void gameRules()
     cout << " - If it's your first turn and you do not draw a card that lets you start a pawn out, you forfeit(skip) your turn.\n";
     cout << " - To move a pawn from your start out onto the track, you must draw either a 1 or a 2.\n" << " If it is a 2 put a pawn on the main track if it was on start and draw again. Otherwise, move pawn forward 2 steps and draw again. \n";
     cout << " - You may jump over your own or another player's pawn that's in your way, counting it as one space.\n" << " BUT... if you land on a space that's already occupied by an opponent's pawn, BUMP that pawn back to its own START space.\n";
-    cout << " - 4 and 10 cards move you backwards. If you have successfully moved a pawn backwards at least two spaces beyond your own START space,\n" << " you may, on a subsequent turn, move into your own SAFETY ZONE without moving all the way around the board.\n";
     cout << endl << " Notes:\n" << "-------------------------------\n";
     cout << " - Two pawns of the same color may never occupy the same space. If your only possible move would make you land on a space already occupied\n" << " by another of your own pawns, you forfeit your turn.\n";
     cout << " - If at any time you cannot move, you forfeit your turn.\n";
