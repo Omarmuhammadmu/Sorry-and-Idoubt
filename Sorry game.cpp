@@ -1,3 +1,5 @@
+//This Code was developed by a group of student at Faculty of Engineering, Cairo University, department of electrical communications and electronics.
+
 #include <iostream>
 #include <bits/stdc++.h>
 #include <cstdlib>
@@ -1320,7 +1322,7 @@ void twoCard (bool UOC,pawn sentPawns[8],board* brd, deck deckOfcards)
     {
         cout << "The computer has drawn " << drawnCard << endl;
     }
-    if((drawnCard != 0) && (drawnCard != 2)||(drawnCard !=1))//Move the pawn function
+    if((drawnCard != 0) && (drawnCard != 2) && (drawnCard !=1))//Move the pawn function
         {
                 if((user.length() == 2 && UOC)  || (computer.length() == 2 && !UOC) )
                 {
