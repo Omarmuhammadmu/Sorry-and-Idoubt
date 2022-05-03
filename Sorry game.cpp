@@ -257,7 +257,7 @@ void deck::queueDeck()
 }
 void logoPrint(){
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
-    cout<<endl<<endl;
+    cout<<endl;
 cout<<"  $$$$$$\\   $$$$$$\\  $$$$$$$\\  $$$$$$$\\ $$\\     $$\\        $$$$$$\\   $$$$$$\\  $$\\      $$\\ $$$$$$$$\\\n" 
 <<"$$  __$$\\ $$  __$$\\ $$  __$$\\ $$  __$$\\\\$$\\   $$  |      $$  __$$\\ $$  __$$\\ $$$\\    $$$ |$$  _____|\n"
 <<"$$ /  \\__|$$ /  $$ |$$ |  $$ |$$ |  $$ |\\$$\\ $$  /       $$ /  \\__|$$ /  $$ |$$$$\\  $$$$ |$$ |      \n"
@@ -308,6 +308,16 @@ void wecomeScreen()
     cout << " All CLEAR?!\n" << " Let's get started!\n";
     cout << " -----------------------------------------------------------------------------------------------\n";
     char ip;
+    cout<<"Still confused? Watch a 2 min video tutorial to clarify game rules(Y/N)";
+    cin>>ip;
+    while(ip != 'Y' &&ip != 'y'&&ip != 'N'&&ip != 'n' ){
+    cout<<"Error: Still confused? Watch a 2 min video tutorial to clarify the rules of the game(Y/N)";
+    cin>>ip;
+    }
+    if(ip == 'Y' || ip == 'y'){
+    std::string op = std::string("start ").append("https://www.youtube.com/watch?v=XMYIi17QrC0");
+    system(op.c_str());
+    }
     cout<<"Clear the console each time a move is made?(Y/N)";
     cin>>ip;
     while(ip != 'Y' &&ip != 'y'&&ip != 'N'&&ip != 'n' ){
