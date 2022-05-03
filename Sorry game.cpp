@@ -3,13 +3,22 @@
 #include <cstdlib>
 #include <time.h>
 #include <windows.h>
-using namespace std;
+#include <cwchar>
+#include<stdlib.h>
+#include <chrono> 
 
+using namespace std;
+using namespace std::chrono;
+
+CONSOLE_FONT_INFOEX cfi;
 //Global variables
-bool win = true;
+bool win = true, clrCon = false,  cmplxtyCalc =false; // is the game over , refresh the screen , calc time cmplx.
 int drawnCard;
 int usize = 4, csize = 4, dusize = 0, dcsize = 0;
-#define MAX 4
+
+
+
+#define MAX 4 // ****changing the MAX number of pawns to win from 1 to 4 to study time comlexity****
 
 //pawn implementation
 struct pawn
@@ -93,6 +102,31 @@ bool Stack::isEmpty()
 Stack user, computer, DU, DC;
 Queue DOC(45);   //Deck of cards (DOC)
 
+void setFont(CONSOLE_FONT_INFOEX* cfi,int size_y){
+cfi->nFont = 0;
+cfi->dwFontSize.X = 0;                   // Width of each character in the font
+cfi->dwFontSize.Y = size_y;                  // Height
+cfi->FontFamily = FF_DONTCARE;
+cfi->FontWeight = FW_NORMAL;
+std::wcscpy(cfi->FaceName, L"Consolas"); // Choose your font
+SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, cfi);
+}
+void clearConsole() {
+    COORD topLeft  = { 0, 0 };
+    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO screen;
+    DWORD written;
+
+    GetConsoleScreenBufferInfo(console, &screen);
+    FillConsoleOutputCharacterA(
+        console, ' ', screen.dwSize.X * screen.dwSize.Y, topLeft, &written
+    );
+    FillConsoleOutputAttribute(
+        console, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE,
+        screen.dwSize.X * screen.dwSize.Y, topLeft, &written
+    );
+    SetConsoleCursorPosition(console, topLeft);
+}
 //Board implementation
 class board
 {
@@ -126,13 +160,15 @@ public:
 };
 void board::printBoard(char arr[17][17])
 {
+    if(clrCon)
+    setFont(&cfi,30);
     b[7][2] = char(dusize + 48);
     b[8][13] = char(dcsize + 48);
     b[2][4] = char(usize + 48);
     b[13][11] = char(csize + 48);
     for (int i = 0; i < 16; i++)
     {
-        cout << "                 ";
+        cout << "\t\t\t";
         for (int j = 0; j < 16; j++)
         {
             cout << arr[i][j] << ' ';
@@ -149,6 +185,7 @@ void board::printBoard(char arr[17][17])
         }
         cout << endl;
     }
+
     //Print the board for Online Compiler
     //     for(int i=0; i<16; i++)
     //         {
@@ -156,6 +193,7 @@ void board::printBoard(char arr[17][17])
     //         for(int j=0; j<16; j++)
     //         cout<< arr[i][j]<<' ';
     //         cout<<endl;}
+
 }
 
 // Shuffle cards
@@ -213,12 +251,9 @@ void deck::queueDeck()
     {
         DOC.Enqueue(cards[i]);
     }
-    cout << endl << "The deck of cards is shuffles, You can draw now!\n" << endl;
+    cout << endl << "The deck of cards is shuffled, You can draw now!\n" << endl;
 }
-
-//Game's rule
-void gameRules()
-{
+void logoPrint(){
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
     cout<<endl<<endl;
 cout<<"  $$$$$$\\   $$$$$$\\  $$$$$$$\\  $$$$$$$\\ $$\\     $$\\        $$$$$$\\   $$$$$$\\  $$\\      $$\\ $$$$$$$$\\\n" 
@@ -230,14 +265,30 @@ cout<<"  $$$$$$\\   $$$$$$\\  $$$$$$$\\  $$$$$$$\\ $$\\     $$\\        $$$$$$\\
 <<"\\$$$$$$  | $$$$$$  |$$ |  $$ |$$ |  $$ |   $$ |          \\$$$$$$  |$$ |  $$ |$$ | \\_/ $$ |$$$$$$$$\\ \n"
  <<" \\______/  \\______/ \\__|  \\__|\\__|  \\__|   \\__|           \\______/ \\__|  \\__|\\__|     \\__|\\________|\n";
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
-    
+
+}
+
+void MaximizeWindow()
+{
+	CONSOLE_SCREEN_BUFFER_INFO info;
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
+	SMALL_RECT rc;
+	rc.Left = rc.Top = 0;
+	rc.Right = (short)(min(info.dwMaximumWindowSize.X, info.dwSize.X) - 1);
+	rc.Bottom = (short)(min(info.dwMaximumWindowSize.Y, info.dwSize.Y) - 1);
+	SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), true, &rc);
+}
+//Game's rule
+void wecomeScreen()
+{   
+    MaximizeWindow();
+    logoPrint();
     //Rules
     cout<<endl<<endl;
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0xB);
-
-    cout << " Rules of the game\n" ;
+    setFont(&cfi,17);
+    cout << " Rules of the game:\n" ;
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
-
     cout<< "-------------------------------\n" << " - Each player has 4 pawns.\n";
     cout << " - If it's your first turn and you do not draw a card that lets you start a pawn out, you forfeit(skip) your turn.\n";
     cout << " - To move a pawn from your start out onto the track, you must draw either a 1 or a 2.\n" << " If it is a 2 put a pawn on the main track if it was on start and draw again. Otherwise, move pawn forward 2 steps and draw again. \n";
@@ -249,12 +300,29 @@ cout<<"  $$$$$$\\   $$$$$$\\  $$$$$$$\\  $$$$$$$\\ $$\\     $$\\        $$$$$$\\
     cout << " - Two pawns of the same color may never occupy the same space. If your only possible move would make you land on a space already occupied\n" << " by another of your own pawns, you forfeit your turn.\n";
     cout << " - If at any time you cannot move, you forfeit your turn.\n";
     cout << " - But if at any time you can move, you must move, even if it's to your disadvantage.\n";
-    cout << " - If the pawn is placed on (>), it will move either 3 or 4 steps foward (Clarified which is which on the board) on the main track bumping any opponent's pawn/s back to its/their own START space.\n";
+    cout << " - If the pawn is placed on (>), it will move 3 or 4 steps foward (Clarified which is which on the board) on the main track bumping any opponent's pawn/s back to its/their own START space.\n";
     cout << " - Movement of pawns is in clockwise movement.\n";
     cout << " - If the drawn card was (0), then the player can choose any opponent's pawn on the main to replace its own and bump the opponet's pawn back to start \n";
     cout << " All CLEAR?!\n" << " Let's get started!\n";
-    system("pause");
-    cout << " -----------------------------------------------------------------------------------------------";
+    cout << " -----------------------------------------------------------------------------------------------\n";
+    char ip;
+    cout<<"Clear the console each time a move is made?(Y/N)";
+    cin>>ip;
+    while(ip != 'Y' &&ip != 'y'&&ip != 'N'&&ip != 'n' ){
+    cout<<"Error: Clear the console each time a move is made?(Y/N)";
+    cin>>ip;
+    }
+    if(ip == 'Y' || ip == 'y')
+    clrCon = true;
+    cout<<"Calculate the Time Complexity?(Y/N)";
+    cin>>ip;
+    while(ip != 'Y' &&ip != 'y'&&ip != 'N'&&ip != 'n' ){
+    cout<<"Error: Calculate the Time Complexity?(Y/N)";
+    cin>>ip;
+    }
+    if(ip == 'Y' || ip == 'y')
+    cmplxtyCalc = true;
+    clearConsole();
 
 }
 //Game functions 
@@ -327,17 +395,15 @@ int whichtoMove(char diff, pawn active[8])
 }
 
 // Function to bump the opponent's pawn to its start
-bool trivialBump(pawn* check, board brd, pawn sentPawns[8])
+bool trivialBump(pawn* check, board* brd, pawn sentPawns[8])
 {
-   // cout << "bump is called\n";
-    if (slotChecker(brd, check->x, check->y)) //do nothing if theres no char
+    if (slotChecker(*brd, check->x, check->y)) //do nothing if theres no char
         return false;
-    char ch = brd.b[check->x][check->y];
+    char ch = brd->b[check->x][check->y]; // the char of the pawn we will bump into
     int i;
     for (i = 0; i < 8; i++)
         if (sentPawns[i].s == ch)
             break;
-    brd.b[sentPawns[i].x][sentPawns[i].y] = '.';
     if ((ch == 'A' || ch == 'B' || ch == 'C' || ch == 'D') && !check->red)// user pawn will return to base
     {
         sentPawns[i]= {.s=sentPawns[i].s,.x=1, .y=4, .red=true, .safe =false };
@@ -353,6 +419,7 @@ bool trivialBump(pawn* check, board brd, pawn sentPawns[8])
     else
         return true;
     cout << "Pawn " << ch << " was sent home\n";
+    //brd.b[sentPawns[i].x][sentPawns[i].y] = '.';
     delPawnfrmArr(ch, sentPawns);
     return false;
 }
@@ -382,7 +449,7 @@ void slideBump(pawn* check, board *brd, pawn sentPawns[8], bool sliding) {
 }
 
 void slide(pawn check, board* brd, pawn sentPawns[8], bool sm) {
-    for (int i = 1; i < 4 - sm; i++)
+    for (int i = 1; i <= 4 - sm; i++)
     {
         pawn temp = check;
         if (check.x == 15) // slide left
@@ -574,17 +641,23 @@ void moveAnotherPawn(pawn* mover, int steps, board* brd, pawn sentPawns[8]) {// 
     }
 }
 
-void trivialSeq(pawn* check, board *brd, pawn sentPawns[8], int x,int y ,int steps,bool isSliding) {
+//the sequence of steps that reverts the coordinates of a given pawn if the move is trivial 
+bool trivialSeq(pawn* check, board *brd, pawn sentPawns[8], int x,int y ,int steps,bool isSliding) {
+//since the sequence is checked in every stage, let the old indicies x,y fix  the '<' prob.
+    if (x == 15 && y == 14)
+        brd->b[x][y] = '<';
+    else if (x == 0 && y == 1 )
+        brd->b[x][y] = '>';
    if(isSliding)
-        {return;}
-    if (trivialBump(check, *brd, sentPawns))
+        {return false;}
+    if (trivialBump(check, brd, sentPawns))
     {
         check->y = y;
         check->x = x;
         brd->b[check->x][check->y] = check->s; // new indicies
         if (check->red)cout << "Trivial move\n";
         moveAnotherPawn(check, steps, brd, sentPawns);
-        return;
+        return true;
     }
 }
 
@@ -614,7 +687,8 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
                 else{
                 brd->b[mover->x][2] = '.';}
                 mover->x += steps;
-                trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps,false);
+                if (trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps,false))
+                    return;
                 brd->b[mover->x][2] = mover->s;
             }
             else
@@ -632,40 +706,49 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
             {
                 brd->b[mover->x][13] = '.';
                 mover->x -= steps;
-                trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps,false);
+            if (trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps,false))
+                    return;
                 brd->b[mover->x][13] = mover->s;
             }
             else
                 moveAnotherPawn(mover, steps, brd, sentPawns);
         }
         return;
+    
     }
-    //*********************************************************************
-    //enter the safe zone
-    if (mover->red && mover->x < 11 && mover->y < 3 && ((-mover->x + mover->y + steps - 2) > -1) && ((-mover->x + mover->y + steps - 2) < 7) && !mover->safe) {
+    //**********************************enter the safe zone***********************************
+    //for user:
+    if (mover->red && mover->x < 10 && mover->y < 3 && ((-mover->x + mover->y + steps - 2) > -1) && ((-mover->x + mover->y + steps - 2) < 7) && !mover->safe) {
         brd->b[mover->x][mover->y] = '.';
         mover->x = -mover->x + mover->y + steps - 2;
         mover->y = 2;
+        if (trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps,false))
+        return;
         brd->b[mover->x][mover->y] = mover->s;
-        //if(mover->x >0)
-        mover->safe = true;
+        if(mover->x != 0){ 
+        mover->safe = true;}
         if (mover->x == 6) {
             movePawn(mover, 0, brd, sentPawns);
+
         }
         return;
     }
-    else if (!mover->red && mover->x > 4 && mover->y > 12 && ((47 - steps - mover->x - mover->y) < 16) && ((47 - steps - mover->x - mover->y) > 8) && !mover->safe) {
+    //for computer
+    else if (!mover->red && mover->x > 5 && mover->y > 12 && ((47 - steps - mover->x - mover->y) < 16) && ((47 - steps - mover->x - mover->y) > 8) && !mover->safe) {
         brd->b[mover->x][mover->y] = '.';
         mover->x = 47 - steps - mover->x - mover->y;
         mover->y = 13;
+        if (trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps,false))
+        return;
         brd->b[mover->x][mover->y] = mover->s;
-        if(mover->y == 13 && mover->x <15)
-        {mover->safe = true;}
+        if(mover->x != 15){
+        mover->safe = true;}
         if (mover->x == 9) {
             movePawn(mover, 0, brd, sentPawns);
         }
         return;
     }
+    // pawns cannot make more than one turn around the board
     else if ((!mover->red && mover->x > 5 && mover->y > 12) || (mover->red && mover->x < 12 && mover->y < 3)) {
         if ((-mover->x + mover->y + steps -2 > 6) && mover->red)
         {
@@ -722,7 +805,6 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
         mover->x = 0;
     }
 
-    //char ch = brd->b[mover->x][mover->y];
     if (mover->x == 0 && mover->y == 1 && mover->red){
     brd->b[mover->x][mover->y] = mover->s; // new indicies
     return;
@@ -757,6 +839,7 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
         brd->b[15][14] = '<';
         brd->b[1][15] = 'v';
         brd->b[0][1] = '>';
+        brd->b[mover->x][mover->y] = mover->s; // new indicies
     }
     trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps,isSliding);
     brd->b[mover->x][mover->y] = mover->s; // new indicies
@@ -1314,9 +1397,11 @@ void twoCard (bool UOC,pawn sentPawns[8],board* brd, deck deckOfcards)
 }
 
 //Driver code
-int main() {
-
-    gameRules();
+int main() 
+{   auto start = high_resolution_clock::now();  
+    cfi.cbSize = sizeof(cfi);
+    cfi.nFont = 0; 
+    wecomeScreen();
     //Initlaizing Board, the deck of cards and 4 pawns for each player.
     board brd;
     deck deckOfcards;
@@ -1332,6 +1417,7 @@ int main() {
         pawn c = { cc--,  14, 11, false, false };
         user.push(u);
         computer.push(c);
+        
         usize++;
         csize++;
     }
@@ -1344,6 +1430,8 @@ int main() {
         cout << "Press enter to draw\n"<<endl;
         cin.get();
         cin.ignore();
+        if(clrCon) // needs relocation*****
+         clearConsole();
 
         Draw(deckOfcards);
         cout << "You have drawn " << drawnCard << endl;
@@ -1352,7 +1440,7 @@ int main() {
             activePawns[0] = user.pop();
             usize--;
             pawn dummy = { activePawns[0].s,  0,  4, true, false };
-            trivialBump(&dummy,brd,activePawns);
+            trivialBump(&dummy,&brd,activePawns);
             cout<<"You have added " <<activePawns[0].s<<" to the board\n"<<endl; 
             placeonTrack(&activePawns[0], true, &brd);
             brd.printBoard(brd.b);
@@ -1413,7 +1501,7 @@ int main() {
                         usize--;
                         pawn dummy = { activePawns[firstFreeindex].s,  0,  4, true, false };
                         cout<<"You have added " <<activePawns[0].s<<" to the board\n"<<endl;
-                        trivialBump(&dummy,brd,activePawns);
+                        trivialBump(&dummy,&brd,activePawns);
                         placeonTrack(&activePawns[firstFreeindex], true, &brd);
                         brd.printBoard(brd.b);
                         if (drawnCard == 2)
@@ -1485,7 +1573,7 @@ int main() {
             activePawns[4].y =11;
             csize--;
             pawn dummy = { activePawns[4].s,  15,  14, false, false };
-            trivialBump(&activePawns[4],brd,activePawns);
+            trivialBump(&activePawns[4],&brd,activePawns);
             cout<<"The computer has added " <<activePawns[4].s<<" to the board\n"<<endl; 
             placeonTrack(&activePawns[4], false, &brd);
             //Bump user if exist**************************************************
@@ -1542,7 +1630,7 @@ int main() {
                         csize--;
                         pawn dummy = { activePawns[firstFreeindex].s,  15, 11, false, false };
                         cout<<"The computer has added " <<activePawns[firstFreeindex].s<<" to the board\n"<<endl; 
-                        trivialBump(&dummy,brd,activePawns);
+                        trivialBump(&dummy,&brd,activePawns);
                         placeonTrack(&activePawns[firstFreeindex], false, &brd);
                         brd.printBoard(brd.b);
                         if (drawnCard == 2)
@@ -1620,4 +1708,9 @@ int main() {
         }
     else
         cout << "Hard luck, the computer won\n";
+            // code to calculate time taken to execute the algorithm:
+        auto stop = high_resolution_clock::now(); 
+        auto duration = duration_cast<microseconds>(stop - start); 
+        if(cmplxtyCalc)
+        cout << "time taken to execute the algorithm = "<<duration.count()<<" us" << endl; 
 }
