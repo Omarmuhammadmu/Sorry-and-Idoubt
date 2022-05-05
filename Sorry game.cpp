@@ -160,7 +160,6 @@ public:
 };
 void board::printBoard(char arr[17][17])
 {
-    setFont(&cfi,22);
     b[7][2] = char(dusize + 48);
     b[8][13] = char(dcsize + 48);
     b[2][4] = char(usize + 48);
@@ -286,7 +285,7 @@ void welcomeScreen(bool &autoDraw)
     //Rules
     cout<<endl<<endl;
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0xB);
-    setFont(&cfi,18);
+    setFont(&cfi,22);
     cout << " Rules of the game:\n" ;
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
     cout<< "-------------------------------\n" << " - Each player has 4 pawns.\n";
