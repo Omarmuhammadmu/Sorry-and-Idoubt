@@ -160,6 +160,8 @@ public:
 };
 void board::printBoard(char arr[17][17])
 {
+
+    setFont(&cfi,22);
     b[7][2] = char(dusize + 48);
     b[8][13] = char(dcsize + 48);
     b[2][4] = char(usize + 48);
@@ -192,6 +194,7 @@ void board::printBoard(char arr[17][17])
     //         for(int j=0; j<16; j++)
     //         cout<< arr[i][j]<<' ';
     //         cout<<endl;}
+
 }
 
 // Shuffle cards
@@ -285,7 +288,7 @@ void welcomeScreen(bool &autoDraw)
     //Rules
     cout<<endl<<endl;
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0xB);
-    setFont(&cfi,22);
+    setFont(&cfi,18);
     cout << " Rules of the game:\n" ;
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
     cout<< "-------------------------------\n" << " - Each player has 4 pawns.\n";
@@ -557,6 +560,7 @@ bool isMovable(pawn mover, int steps, board* brd)
         mover.y = steps - mover.x;
         mover.x = 0;
     }
+   
    char ch = brd->b[mover.x][mover.y];
    if(slotChecker(*brd, mover.x, mover.y) || (( ch == 'A' || ch == 'B' || ch == 'C' || ch == 'D') && !mover.red) || ((ch == 'Z' || ch == 'X' || ch == 'Y' || ch == 'W') && mover.red))
    {
@@ -601,6 +605,7 @@ int possibleMove(bool UOC, int steps, board* brd, pawn sentPawns[8])
 }
 
 void moveAnotherPawn(pawn* mover, int steps, board* brd, pawn sentPawns[8]) {
+    
     if (possibleMove(mover->red, steps, brd, sentPawns) ==0)
         return;
 
@@ -755,6 +760,7 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
                 moveAnotherPawn(mover, steps, brd, sentPawns);
         }
         return;
+    
     }
     //**********************************enter the safe zone***********************************
     //for user:
@@ -844,6 +850,7 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
         mover->y = steps - mover->x;
         mover->x = 0;
     }
+
     if (mover->x == 0 && mover->y == 1 && mover->red){
     brd->b[mover->x][mover->y] = mover->s; // new indicies
     return;
@@ -1127,6 +1134,7 @@ void movewhichPawn(board* brd, bool UOC, pawn sentPawns[8],int steps)
         movePawn(&sentPawns[index], drawnCard, brd, sentPawns);
         cout << "The computer moved " << sentPawns[index].s << endl;}
     }
+
 }
 
 //Function to return the first free index of the activePawns array
@@ -1364,13 +1372,15 @@ void numbertwoCard (bool UOC,pawn sentPawns[8],board* brd, deck deckOfcards)
     {
         cout << "The computer has drawn ";
     }
+    
     if(!drawnCard)
     cout<<"Sorry card\n";
     else
     cout<<drawnCard<<endl;
+
     if((drawnCard != 0) && (drawnCard != 2) && (drawnCard !=1)) //Move the pawn function
         {
-                if((user.length() == 2 && UOC)  || (computer.length() == 2 && !UOC) )
+                if((usize == 3 && UOC)  || (csize == 3 && !UOC) )
                 {
                     int onlyActivepawn;
                     onlyActivepawn=getActivepawnindex(UOC,sentPawns);
@@ -1528,6 +1538,7 @@ int main()
         usize++;
         csize++;
     }
+    
     //Start playing
     bool winner = true;
     while (win)
@@ -1567,16 +1578,16 @@ int main()
                         numbertwoCard(true,activePawns,&brd,deckOfcards);
                     }
             }
-            else if (drawnCard > 0)
+            else if ((drawnCard > 0) && (possibleMove(true,drawnCard,&brd,activePawns) != 0))
             {
-                if (user.length() < 2 && possibleMove(true,drawnCard,&brd,activePawns) != 0) //More than two pawns
+                if (user.length() < 2) //More than two pawns
                 {
                     movewhichPawn(&brd, true, activePawns,drawnCard);
                     brd.printBoard(brd.b);
                 }
                 else
                 {
-                    if (user.length() == 2 && possibleMove(true,drawnCard,&brd,activePawns) != 0)
+                    if (user.length() == 2)
                     {
                         int onlyActivepawn;
                         onlyActivepawn=getActivepawnindex(true,activePawns);
@@ -1589,9 +1600,13 @@ int main()
                 }
             }
             else
-            {sorryCard(true, activePawns,&brd);
-}
+            {   if((possibleMove(true,drawnCard,&brd,activePawns) != 0))
+                sorryCard(true, activePawns,&brd);
+                else
+                cout<<"The card is useless\n";
+            }
         }
+    
 //To check if all pawns of the user are pushed to the destination stack
 if (DU.length() == 0)
 {
@@ -1599,6 +1614,7 @@ if (DU.length() == 0)
     winner = true;
     break;
 }
+
 //Computer turn
     auto start = high_resolution_clock::now();  
         Draw(deckOfcards);
@@ -1635,7 +1651,7 @@ if (DU.length() == 0)
                         numbertwoCard(false,activePawns,&brd,deckOfcards);
                     }
             }
-            else if (drawnCard > 0 && possibleMove(false,drawnCard,&brd,activePawns) != 0)
+            else if ((drawnCard > 0) && (possibleMove(false,drawnCard,&brd,activePawns) != 0))
             {
                 if (csize < 3)
                 {
@@ -1644,7 +1660,7 @@ if (DU.length() == 0)
                 }
                 else
                 {
-                    if (computer.length() == 2 && possibleMove(false,drawnCard,&brd,activePawns) != 0)
+                    if (computer.length() == 2)
                     {
                         int onlyActivepawn;
                         onlyActivepawn=getActivepawnindex(false,activePawns);
@@ -1656,7 +1672,10 @@ if (DU.length() == 0)
             }
             else
             {
+                if((possibleMove(false,drawnCard,&brd,activePawns) != 0))
                 sorryCard(false, activePawns,&brd);
+                else
+                cout<<"The card is useless\n";
             }
         }
         auto stop = high_resolution_clock::now(); 
@@ -1669,6 +1688,7 @@ if (DU.length() == 0)
             break;
         }
     }
+
     //Annoucing the winner
     if (winner)
         {
