@@ -19,8 +19,8 @@ bool win = true, cmplxtyCalc =false; // is the game over , refresh the screen , 
 int drawnCard;
 int usize = 4, csize = 4, dusize = 0, dcsize = 0,colours[4];
 
-#define MAX 4 
-#define DESTPAWNS 3 // Governs the stack size and consecutively the number of pawns 
+#define MAX 4 // Governs the stack size and consecutively the number of pawns, THIS PARAMETER CAN BE ALTERED FROM 1~4 TO STUDY TIME COMPLEXITY
+
 
 //pawn implementation
 struct pawn
@@ -256,14 +256,14 @@ void deck::queueDeck()
 void logoPrint(){
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
     cout<<endl<<endl;
-cout<<"          \t $$$$$$\\   $$$$$$\\  $$$$$$$\\  $$$$$$$\\ $$\\     $$\\        $$$$$$\\   $$$$$$\\  $$\\      $$\\ $$$$$$$$\\\n" 
-<<"           \t$$  __$$\\ $$  __$$\\ $$  __$$\\ $$  __$$\\\\$$\\   $$  |      $$  __$$\\ $$  __$$\\ $$$\\    $$$ |$$  _____|\n"
-<<"           \t$$ /  \\__|$$ /  $$ |$$ |  $$ |$$ |  $$ |\\$$\\ $$  /       $$ /  \\__|$$ /  $$ |$$$$\\  $$$$ |$$ |      \n"
-<<"           \t\\$$$$$$\\  $$ |  $$ |$$$$$$$  |$$$$$$$  | \\$$$$  /        $$ |$$$$\\ $$$$$$$$ |$$\\$$\\$$ $$ |$$$$$\\    \n"
- <<"          \t \\____$$\\ $$ |  $$ |$$  __$$< $$  __$$<   \\$$  /         $$ |\\_$$ |$$  __$$ |$$ \\$$$  $$ |$$  __|   \n"
-<<"          \t$$\\   $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |   $$ |          $$ |  $$ |$$ |  $$ |$$ |\\$  /$$ |$$ |      \n"
-<<"          \t\\$$$$$$  | $$$$$$  |$$ |  $$ |$$ |  $$ |   $$ |          \\$$$$$$  |$$ |  $$ |$$ | \\_/ $$ |$$$$$$$$\\ \n"
- <<"          \t \\______/  \\______/ \\__|  \\__|\\__|  \\__|   \\__|           \\______/ \\__|  \\__|\\__|     \\__|\\________|\n";
+cout<<" \t\t\t\t $$$$$$\\   $$$$$$\\  $$$$$$$\\  $$$$$$$\\ $$\\     $$\\        $$$$$$\\   $$$$$$\\  $$\\      $$\\ $$$$$$$$\\\n" 
+<<" \t\t\t\t$$  __$$\\ $$  __$$\\ $$  __$$\\ $$  __$$\\\\$$\\   $$  |      $$  __$$\\ $$  __$$\\ $$$\\    $$$ |$$  _____|\n"
+<<" \t\t\t\t$$ /  \\__|$$ /  $$ |$$ |  $$ |$$ |  $$ |\\$$\\ $$  /       $$ /  \\__|$$ /  $$ |$$$$\\  $$$$ |$$ |      \n"
+<<" \t\t\t\t\\$$$$$$\\  $$ |  $$ |$$$$$$$  |$$$$$$$  | \\$$$$  /        $$ |$$$$\\ $$$$$$$$ |$$\\$$\\$$ $$ |$$$$$\\    \n"
+ <<" \t\t\t\t \\____$$\\ $$ |  $$ |$$  __$$< $$  __$$<   \\$$  /         $$ |\\_$$ |$$  __$$ |$$ \\$$$  $$ |$$  __|   \n"
+<<" \t\t\t\t$$\\   $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |   $$ |          $$ |  $$ |$$ |  $$ |$$ |\\$  /$$ |$$ |      \n"
+<<" \t\t\t\t\\$$$$$$  | $$$$$$  |$$ |  $$ |$$ |  $$ |   $$ |          \\$$$$$$  |$$ |  $$ |$$ | \\_/ $$ |$$$$$$$$\\ \n"
+ <<" \t\t\t\t \\______/  \\______/ \\__|  \\__|\\__|  \\__|   \\__|           \\______/ \\__|  \\__|\\__|     \\__|\\________|\n";
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
 
 }
@@ -274,9 +274,12 @@ void MaximizeWindow()
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
 	SMALL_RECT rc;
 	rc.Left = rc.Top = 0;
-	rc.Right = (short)(min(info.dwMaximumWindowSize.X, info.dwSize.X) - 1);
-	rc.Bottom = (short)(min(info.dwMaximumWindowSize.Y, info.dwSize.Y) - 1);
+	rc.Right = (short)(min(info.dwMaximumWindowSize.X, info.dwSize.X) - 10);
+	rc.Bottom = (short)(min(info.dwMaximumWindowSize.Y, info.dwSize.Y) - 10);
 	SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), true, &rc);
+
+
+
 }
 
 //Welcome screen 
@@ -302,7 +305,7 @@ void welcomeScreen(bool &autoDraw)
     cout << " - But if at any time you can move, you must move, even if it's to your disadvantage.\n";
     cout << " - If the pawn is placed on (>), it will move 3 or 4 steps foward (Clarified which is which on the board) on the main track bumping\n   any opponent's pawn/s back to its/their own START space.\n";
     cout << " - Movement of pawns is in clockwise movement.\n";
-    cout << " - If the drawn card was Sorry card, then the player can choose any opponent's pawn on the main track to replace its own and bump the    opponet's pawn back to start \n";
+    cout << " - If the drawn card was Sorry card, then the player can choose any opponent's pawn on the main track to replace its own and bump the opponet's pawn back to start \n";
     cout << " Let's get started!\n";
     cout << "-----------------------------------------------------------------------------------------------\n";
     char ip;
@@ -1594,7 +1597,7 @@ int main()
         }
     
 //To check if all pawns of the user are pushed to the destination stack
-if (DU.length() == DESTPAWNS)
+if (DU.length() == MAX-1)
 {
 
     winner = true;
@@ -1668,7 +1671,7 @@ if (DU.length() == DESTPAWNS)
         auto duration = duration_cast<microseconds>(stop - start); 
         tCmplxty+=duration.count();
         //To check if all pawns of the computer are pushed to the destination stack
-        if (DC.length() == DESTPAWNS)
+        if (DC.length() == MAX-1)
         {
             winner = false;
             break;
