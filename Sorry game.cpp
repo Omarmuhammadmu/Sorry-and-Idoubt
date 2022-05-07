@@ -311,8 +311,10 @@ void welcomeScreen(bool &autoDraw)
     char ip;
     cout<<"Still confused? Watch a 2 min video tutorial to clarify game rules(Y/N)";
     cin>>ip;
+    Beep(250,250);
     while(ip != 'Y' &&ip != 'y'&&ip != 'N'&&ip != 'n' ){
     cout<<"Error: Still confused? Watch a 2 min video tutorial to clarify the rules of the game(Y/N)";
+    Beep(250,250);
     cin>>ip;
     }
     if(ip == 'Y' || ip == 'y'){
@@ -321,15 +323,19 @@ void welcomeScreen(bool &autoDraw)
     }
     cout<<"Do you want the game to draw cards automatically?(Y/N)";
     cin>>ip;
+    Beep(250,250);
     while(ip != 'Y' &&ip != 'y'&&ip != 'N'&&ip != 'n' ){
     cout<<"Error: Do you want the game to draw cards automatically?(Y/N)";
+    Beep(250,250);
     cin>>ip;
     }
     if(ip == 'Y' || ip == 'y')
     autoDraw = true;
     cout<<"Choose the colour you want to play with(R/Y/G/B)";
     cin>>ip;
+    Beep(250,250);
     while(ip != 'R' &&ip != 'r'&&ip != 'Y'&&ip != 'y' &&ip != 'G'&&ip != 'g'&&ip != 'B'&&ip != 'b'){
+    Beep(250,250);
     cout<<"Error: Choose the colour you want to play with(R/Y/G/B)";
     cin>>ip;
     }
@@ -361,7 +367,9 @@ else
 }
     cout<<"Calculate the Time Complexity?(Y/N)";
     cin>>ip;
+    Beep(250,250);
     while(ip != 'Y' &&ip != 'y'&&ip != 'N'&&ip != 'n' ){
+    Beep(250,250);
     cout<<"Error: Calculate the Time Complexity?(Y/N)";
     cin>>ip;
     }
@@ -461,6 +469,7 @@ bool trivialBump(pawn* check, board* brd, pawn sentPawns[8])
         sentPawns[i]= {.s=sentPawns[i].s,.x=14, .y=11, .red=false, .safe =false };
         computer.push(sentPawns[i]);
         csize++;
+        Beep(200,250);
     }
     else
         return true;
@@ -487,7 +496,9 @@ void slideBump(pawn* check, board *brd, pawn sentPawns[8], bool sliding) {
     else if ((ch == 'Z' || ch == 'X' || ch == 'Y' || ch == 'W'))// computer pawn will return to base
     {
         computer.push(sentPawns[i]);
-        csize++;}
+        csize++;
+        Beep(200,250);
+        }
     brd->b[sentPawns[i].x][sentPawns[i].y] = '.';
     cout << "Pawn " << ch << " was sent home\n";
     delPawnfrmArr(ch, sentPawns);
@@ -737,6 +748,8 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
                 brd->b[mover->x][2] = '.';
                 DU.push(*mover);
                 dusize++;
+                Beep(350,250);
+                Beep(350,250);
                 delPawnfrmArr(mover->s, sentPawns);
             }
             else if ((mover->x + steps) < 6)
@@ -755,6 +768,8 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
                 brd->b[mover->x][13] = '.';
                 DC.push(*mover);
                 dcsize++;
+                Beep(200,250);
+                Beep(200,250);
                 delPawnfrmArr(mover->s, sentPawns);
             }
             else if ((mover->x - steps) > 9)
@@ -876,6 +891,7 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
     }
     trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps,isSliding);
     brd->b[mover->x][mover->y] = mover->s; // new indicies
+
 }
 
 //Function to check active pawns [among computer pawns]
@@ -1252,6 +1268,7 @@ void sorryCard(bool UOC, pawn sentPawns[8],board* brd)
                         firstFreeindex = nearfreeindex(true, sentPawns);
                         sentPawns[firstFreeindex] = user.pop();
                         usize--;
+                        Beep(200,250);
                         //Assign user x and y coordinates and place on the board 
                         sentPawns[firstFreeindex].x = sentPawns[replacedPawnindex].x;
                         sentPawns[firstFreeindex].y = sentPawns[replacedPawnindex].y;
@@ -1260,6 +1277,7 @@ void sorryCard(bool UOC, pawn sentPawns[8],board* brd)
                         sentPawns[replacedPawnindex]= {.s=sentPawns[replacedPawnindex].s,.x=14, .y=11, .red=false, .safe =false };
                         computer.push(sentPawns[replacedPawnindex]);
                         csize++;
+                        Beep(200,250);
                         cout<<"You have replaced "<<sentPawns[replacedPawnindex].s<<" by "<< sentPawns[firstFreeindex].s<<" pawn\n";
                         cout<<"Pawn "<<sentPawns[replacedPawnindex].s << " was sent home.\n";
                         //delete replaced from the activePawns array.
@@ -1308,6 +1326,7 @@ void sorryCard(bool UOC, pawn sentPawns[8],board* brd)
             firstFreeindex = nearfreeindex(false, sentPawns);
             sentPawns[firstFreeindex] = computer.pop();
             csize--;
+            Beep(200,250);
             //Assign user x and y coordinates and place on the board 
             sentPawns[firstFreeindex].x = sentPawns[replacedPawnindex].x;
             sentPawns[firstFreeindex].y = sentPawns[replacedPawnindex].y;
@@ -1316,6 +1335,7 @@ void sorryCard(bool UOC, pawn sentPawns[8],board* brd)
             sentPawns[replacedPawnindex]= {.s=sentPawns[replacedPawnindex].s,.x=1, .y=4, .red=true, .safe =false };
             user.push(sentPawns[replacedPawnindex]);
             usize++;
+            Beep(350,250);
             cout<<"The computer replaced "<<sentPawns[replacedPawnindex].s<<" by "<< sentPawns[firstFreeindex].s<<" pawn\n"<<endl;
             cout<<"Pawn "<<sentPawns[replacedPawnindex].s << " was sent home.\n";
             //delete replaced from the activePawns array.
@@ -1350,7 +1370,7 @@ void numberoneCard (bool UOC,pawn sentPawns[8],board* brd);
 //Function to handle if the drawn card is 2
 void numbertwoCard (bool UOC,pawn sentPawns[8],board* brd, deck deckOfcards)
 {
-    cout<<"Drawing again due to the drawn card was 2. \n";
+    cout<<"Drawing again since the drawn card was 2. \n";
     Draw(deckOfcards);
     if(UOC)
     {
@@ -1367,7 +1387,7 @@ void numbertwoCard (bool UOC,pawn sentPawns[8],board* brd, deck deckOfcards)
 
     if((drawnCard != 0) && (drawnCard != 2) && (drawnCard !=1)) //Move the pawn function
         {
-                if((usize == 3 && UOC)  || (csize == 3 && !UOC) )
+                if((250 == 3 && UOC)  || (csize == 3 && !UOC) )
                 {
                     int onlyActivepawn;
                     onlyActivepawn=getActivepawnindex(UOC,sentPawns);
@@ -1467,6 +1487,7 @@ void numberoneCard (bool UOC,pawn sentPawns[8],board* brd)
                     {   //pop in the first free array from 0 to 3
                         sentPawns[firstFreeindex] = user.pop();
                         usize--;
+                        Beep(350,250);
                         dummy = { sentPawns[firstFreeindex].s,  0,  4, true, false };
                         cout<<"You have added " <<sentPawns[firstFreeindex].s<<" to the board\n"<<endl;
                     }
@@ -1474,6 +1495,7 @@ void numberoneCard (bool UOC,pawn sentPawns[8],board* brd)
                     {   //pop in the first free array from 4 to 7
                         sentPawns[firstFreeindex] = computer.pop();
                         csize--;
+                        Beep(200,250);
                         dummy = { sentPawns[firstFreeindex].s,  15, 11, false, false };
                         cout<<"The computer has added " <<sentPawns[firstFreeindex].s<<" to the board\n"<<endl;
                     }
@@ -1549,6 +1571,8 @@ int main()
         {
             activePawns[0] = user.pop();
             usize--;
+            Beep(350,250);
+
             pawn dummy = { activePawns[0].s,  0,  4, true, false };
             trivialBump(&dummy,&brd,activePawns);
             cout<<"You have added " <<activePawns[0].s<<" to the board\n"<<endl; 
@@ -1618,6 +1642,7 @@ if (DU.length() == MAX-1)
             activePawns[4].x =15;
             activePawns[4].y =11;
             csize--;
+            Beep(200,250);
             pawn dummy = { activePawns[4].s,  15,  14, false, false };
             trivialBump(&activePawns[4],&brd,activePawns);
             cout<<"The computer has added " <<activePawns[4].s<<" to the board\n"<<endl; 
@@ -1697,5 +1722,5 @@ if (DU.length() == MAX-1)
         cout << "Hard luck, the computer won\n";
             // code to calculate time taken to execute the algorithm:
         if(cmplxtyCalc)
-        cout << "time taken to execute the algorithm = "<<tCmplxty<<" us" << endl; 
+        cout << "The time taken to execute the algorithm = "<<tCmplxty<<" us" << endl; 
 }
