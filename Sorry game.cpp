@@ -160,8 +160,6 @@ public:
 };
 void board::printBoard(char arr[17][17])
 {
-
-    setFont(&cfi,22);
     b[7][2] = char(dusize + 48);
     b[8][13] = char(dcsize + 48);
     b[2][4] = char(usize + 48);
@@ -288,7 +286,6 @@ void welcomeScreen(bool &autoDraw)
     //Rules
     cout<<endl<<endl;
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0xB);
-    setFont(&cfi,18);
     cout << " Rules of the game:\n" ;
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
     cout<< "-------------------------------\n" << " - Each player has 4 pawns.\n";
@@ -519,12 +516,26 @@ bool isMovable(pawn mover, int steps, board* brd)
 {
     if (mover.safe)
     {
-            if ((mover.x + steps <= 6 && mover.red) || (mover.x - steps >= 9 && !mover.red))
+            if ((mover.x + steps <= 6 && mover.red && slotChecker(*brd, mover.x + steps, mover.y)) || (mover.x - steps >= 9 && !mover.red) && slotChecker(*brd, mover.x - steps, mover.y)) 
                 return true;
             else 
                 return false;
     }
-    if (mover.x == 0 && ((mover.y + steps) <= 15)) // upper horizontal
+    if (mover.red && mover.x < 10 && mover.y < 3 && ((-mover.x + mover.y + steps - 2) > -1) && ((-mover.x + mover.y + steps - 2) < 7) ) {
+        mover.x = -mover.x + mover.y + steps - 2;
+        mover.y = 2;
+        }
+    else if (!mover.red && mover.x > 5 && mover.y > 12 && ((47 - steps - mover.x - mover.y) >= 16) ) {
+        return false;
+        }
+    else if (mover.red && mover.x < 10 && mover.y < 3  && ((-mover.x + mover.y + steps - 2) >= 7) ) {
+        return false;
+        }
+    else if (!mover.red && mover.x > 5 && mover.y > 12 && ((47 - steps - mover.x - mover.y) < 16) && ((47 - steps - mover.x - mover.y) > 8)) {
+        mover.x = 47 - steps - mover.x - mover.y;
+        mover.y = 13;
+        }    
+    else if (mover.x == 0 && ((mover.y + steps) <= 15)) // upper horizontal
     {
         mover.y += steps;
     }
@@ -560,7 +571,6 @@ bool isMovable(pawn mover, int steps, board* brd)
         mover.y = steps - mover.x;
         mover.x = 0;
     }
-   
    char ch = brd->b[mover.x][mover.y];
    if(slotChecker(*brd, mover.x, mover.y) || (( ch == 'A' || ch == 'B' || ch == 'C' || ch == 'D') && !mover.red) || ((ch == 'Z' || ch == 'X' || ch == 'Y' || ch == 'W') && mover.red))
    {
@@ -689,10 +699,12 @@ void moveAnotherPawn(pawn* mover, int steps, board* brd, pawn sentPawns[8]) {
 //The sequence of steps that reverts the coordinates of a given pawn if the move is trivial 
 bool trivialSeq(pawn* check, board *brd, pawn sentPawns[8], int x,int y ,int steps,bool isSliding) {
 //since the sequence is checked in every stage, let the old indicies x,y fix  the '<' prob.
-    if (x == 15 && y == 14)
+    if (x == 15 && y == 14  )
         brd->b[x][y] = '<';
-    else if (x == 0 && y == 1 )
+    else if (x == 0 && y == 1  )
         brd->b[x][y] = '>';
+    else
+        brd->b[x][y] = '.';
    if(isSliding)
         {return false;}
     if (trivialBump(check, brd, sentPawns))
@@ -718,20 +730,13 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
         if (mover->red) {
             if (mover->x + steps == 6)
             {
-                if (mover->x == 0 && mover->y == 1 )
-                {brd->b[mover->x][mover->y] = '>';}
-                else
-                {brd->b[mover->x][2] = '.';}
+                brd->b[mover->x][2] = '.';
                 DU.push(*mover);
                 dusize++;
                 delPawnfrmArr(mover->s, sentPawns);
             }
             else if ((mover->x + steps) < 6)
             {
-                if (mover->x == 0 && mover->y == 1 )
-                {brd->b[mover->x][mover->y] = '>';}
-                else{
-                brd->b[mover->x][2] = '.';}
                 mover->x += steps;
                 if (trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps,false))
                     return;
@@ -750,7 +755,6 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
             }
             else if ((mover->x - steps) > 9)
             {
-                brd->b[mover->x][13] = '.';
                 mover->x -= steps;
             if (trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps,false))
                     return;
@@ -765,7 +769,6 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
     //**********************************enter the safe zone***********************************
     //for user:
     if (mover->red && mover->x < 10 && mover->y < 3 && ((-mover->x + mover->y + steps - 2) > -1) && ((-mover->x + mover->y + steps - 2) < 7) && !mover->safe) {
-        brd->b[mover->x][mover->y] = '.';
         mover->x = -mover->x + mover->y + steps - 2;
         mover->y = 2;
         if (trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps,false))
@@ -781,7 +784,6 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
     }
     //for computer
     else if (!mover->red && mover->x > 5 && mover->y > 12 && ((47 - steps - mover->x - mover->y) < 16) && ((47 - steps - mover->x - mover->y) > 8) && !mover->safe) {
-        brd->b[mover->x][mover->y] = '.';
         mover->x = 47 - steps - mover->x - mover->y;
         mover->y = 13;
         if (trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps,false))
@@ -806,12 +808,6 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
             return;
         }
     }
-    if (mover->x == 15 && mover->y == 14)
-        brd->b[mover->x][mover->y] = '<';
-    else if (mover->x == 0 && mover->y == 1 )
-        brd->b[mover->x][mover->y] = '>';
-    else
-    brd->b[mover->x][mover->y] = '.';
 
     //move on board boundaries
     if (mover->x == 0 && ((mover->y + steps) <= 15)) // upper horizontal
@@ -851,14 +847,6 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
         mover->x = 0;
     }
 
-    if (mover->x == 0 && mover->y == 1 && mover->red){
-    brd->b[mover->x][mover->y] = mover->s; // new indicies
-    return;
-    }
-    else if (mover->x == 15 && mover->y == 14 && !mover->red){
-    brd->b[mover->x][mover->y] = mover->s; // new indicies
-    return;
-    }
     
     //slider
     //long slider (slide by 4)
@@ -873,18 +861,13 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
         brd->b[9][15] = 'v';
     }
     //short slider (slide by 3)
-    if ((mover->x == 0 && mover->y == 1) || (mover->x == 1 && mover->y == 15) || (mover->x == 15 && mover->y == 14) || (mover->x == 14 && mover->y == 0))
+    if (((mover->x == 0 && mover->y == 1) && !mover->red) || (mover->x == 1 && mover->y == 15) || ((mover->x == 15 && mover->y == 14) && mover->red) || (mover->x == 14 && mover->y == 0))
     {
-        if (((mover->x == 0 && mover->y == 1) && mover->red) || ((mover->x == 15 && mover->y == 14) && !mover->red)) // return if the smaller slider has the same colour
-            return;
-        
+        brd->b[14][0] = '^';
+        brd->b[1][15] = 'v';
         isSliding = true;
         slide(*mover, brd, sentPawns, 1);
         movePawn(mover, 3, brd, sentPawns);
-        brd->b[14][0] = '^';
-        brd->b[15][14] = '<';
-        brd->b[1][15] = 'v';
-        brd->b[0][1] = '>';
         brd->b[mover->x][mover->y] = mover->s; // new indicies
     }
     trivialSeq(mover, brd, sentPawns, x_cor, y_cor, steps,isSliding);
@@ -1518,6 +1501,7 @@ int main()
     int tCmplxty = 0;
     cfi.cbSize = sizeof(cfi);
     cfi.nFont = 0; 
+    setFont(&cfi,19);
     welcomeScreen(autoDraw);
     
     //Initlaizing Board, the deck of cards and 4 pawns for each player.
@@ -1550,12 +1534,13 @@ int main()
         cin.ignore(std::numeric_limits<streamsize>::max(),'\n');}
 
         Draw(deckOfcards);
+        
         cout << "You have drawn ";
         if(!drawnCard)
         cout<<"Sorry card\n";
         else
         cout<<drawnCard<<endl;
-
+        
         if (user.length() == 3 && (drawnCard == 1 || drawnCard == 2))
         {
             activePawns[0] = user.pop();
@@ -1692,7 +1677,6 @@ if (DU.length() == 0)
     //Annoucing the winner
     if (winner)
         {
-            setFont(&cfi,18);
             cout<<endl<<endl;
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 1);
             cout<< " $$$$$$\\   $$$$$$\\  $$\\   $$\\  $$$$$$\\  $$$$$$$\\   $$$$$$\\ $$$$$$$$\\  $$$$$$\\            $$\\     $$\\  $$$$$$\\  $$\\   $$\\       $$\\      $$\\  $$$$$$\\  $$\\   $$\\ $$\\\n" 
