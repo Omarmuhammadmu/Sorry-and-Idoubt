@@ -19,7 +19,8 @@ bool win = true, cmplxtyCalc =false; // is the game over , refresh the screen , 
 int drawnCard;
 int usize = 4, csize = 4, dusize = 0, dcsize = 0,colours[4];
 
-#define MAX 4 // Governs the stack size and consecutively the number of pawns 
+#define MAX 4 
+#define DESTPAWNS 3 // Governs the stack size and consecutively the number of pawns 
 
 //pawn implementation
 struct pawn
@@ -1593,7 +1594,7 @@ int main()
         }
     
 //To check if all pawns of the user are pushed to the destination stack
-if (DU.length() == 0)
+if (DU.length() == DESTPAWNS)
 {
 
     winner = true;
@@ -1667,7 +1668,7 @@ if (DU.length() == 0)
         auto duration = duration_cast<microseconds>(stop - start); 
         tCmplxty+=duration.count();
         //To check if all pawns of the computer are pushed to the destination stack
-        if (DC.length() == 3)
+        if (DC.length() == DESTPAWNS)
         {
             winner = false;
             break;
