@@ -9,6 +9,8 @@
 #include<stdlib.h>
 #include <chrono> 
 #include <limits>
+#include <conio.h>
+
 
 using namespace std;
 using namespace std::chrono;
@@ -256,30 +258,24 @@ void deck::queueDeck()
 void logoPrint(){
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
     cout<<endl<<endl;
-cout<<" \t\t\t\t $$$$$$\\   $$$$$$\\  $$$$$$$\\  $$$$$$$\\ $$\\     $$\\        $$$$$$\\   $$$$$$\\  $$\\      $$\\ $$$$$$$$\\\n" 
-<<" \t\t\t\t$$  __$$\\ $$  __$$\\ $$  __$$\\ $$  __$$\\\\$$\\   $$  |      $$  __$$\\ $$  __$$\\ $$$\\    $$$ |$$  _____|\n"
-<<" \t\t\t\t$$ /  \\__|$$ /  $$ |$$ |  $$ |$$ |  $$ |\\$$\\ $$  /       $$ /  \\__|$$ /  $$ |$$$$\\  $$$$ |$$ |      \n"
-<<" \t\t\t\t\\$$$$$$\\  $$ |  $$ |$$$$$$$  |$$$$$$$  | \\$$$$  /        $$ |$$$$\\ $$$$$$$$ |$$\\$$\\$$ $$ |$$$$$\\    \n"
- <<" \t\t\t\t \\____$$\\ $$ |  $$ |$$  __$$< $$  __$$<   \\$$  /         $$ |\\_$$ |$$  __$$ |$$ \\$$$  $$ |$$  __|   \n"
-<<" \t\t\t\t$$\\   $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |   $$ |          $$ |  $$ |$$ |  $$ |$$ |\\$  /$$ |$$ |      \n"
-<<" \t\t\t\t\\$$$$$$  | $$$$$$  |$$ |  $$ |$$ |  $$ |   $$ |          \\$$$$$$  |$$ |  $$ |$$ | \\_/ $$ |$$$$$$$$\\ \n"
- <<" \t\t\t\t \\______/  \\______/ \\__|  \\__|\\__|  \\__|   \\__|           \\______/ \\__|  \\__|\\__|     \\__|\\________|\n";
+cout<<"       \t\t\t\t $$$$$$\\   $$$$$$\\  $$$$$$$\\  $$$$$$$\\ $$\\     $$\\        $$$$$$\\   $$$$$$\\  $$\\      $$\\ $$$$$$$$\\\n" 
+<<"       \t\t\t\t$$  __$$\\ $$  __$$\\ $$  __$$\\ $$  __$$\\\\$$\\   $$  |      $$  __$$\\ $$  __$$\\ $$$\\    $$$ |$$  _____|\n"
+<<"       \t\t\t\t$$ /  \\__|$$ /  $$ |$$ |  $$ |$$ |  $$ |\\$$\\ $$  /       $$ /  \\__|$$ /  $$ |$$$$\\  $$$$ |$$ |      \n"
+<<"       \t\t\t\t\\$$$$$$\\  $$ |  $$ |$$$$$$$  |$$$$$$$  | \\$$$$  /        $$ |$$$$\\ $$$$$$$$ |$$\\$$\\$$ $$ |$$$$$\\    \n"
+ <<"       \t\t\t\t \\____$$\\ $$ |  $$ |$$  __$$< $$  __$$<   \\$$  /         $$ |\\_$$ |$$  __$$ |$$ \\$$$  $$ |$$  __|   \n"
+<<"       \t\t\t\t$$\\   $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |   $$ |          $$ |  $$ |$$ |  $$ |$$ |\\$  /$$ |$$ |      \n"
+<<"       \t\t\t\t\\$$$$$$  | $$$$$$  |$$ |  $$ |$$ |  $$ |   $$ |          \\$$$$$$  |$$ |  $$ |$$ | \\_/ $$ |$$$$$$$$\\ \n"
+ <<"       \t\t\t\t \\______/  \\______/ \\__|  \\__|\\__|  \\__|   \\__|           \\______/ \\__|  \\__|\\__|     \\__|\\________|\n";
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
 
 }
 
 void MaximizeWindow()
 {
-	CONSOLE_SCREEN_BUFFER_INFO info;
-	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
-	SMALL_RECT rc;
-	rc.Left = rc.Top = 0;
-	rc.Right = (short)(min(info.dwMaximumWindowSize.X, info.dwSize.X) - 10);
-	rc.Bottom = (short)(min(info.dwMaximumWindowSize.Y, info.dwSize.Y) - 10);
-	SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), true, &rc);
-
-
-
+	keybd_event(VK_MENU,0x38,0,0);
+	keybd_event(VK_RETURN,0x1c,0,0);
+	keybd_event(VK_RETURN,0x1c,KEYEVENTF_KEYUP,0);
+	keybd_event(VK_MENU,0x38,KEYEVENTF_KEYUP,0);
 }
 
 //Welcome screen 
@@ -1557,7 +1553,7 @@ int main()
         //Asks the user to press sth to draw
         if(!autoDraw){
         cout << "Press enter to draw\n"<<endl;
-        cin.ignore(std::numeric_limits<streamsize>::max(),'\n');}
+          getch();}
 
         Draw(deckOfcards);
         
@@ -1719,6 +1715,7 @@ if (DU.length() == MAX-1)
             <<"                                                                               \\_/                                                                                  \n";
         }
     else
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 2);
         cout << "Hard luck, the computer won\n";
             // code to calculate time taken to execute the algorithm:
         if(cmplxtyCalc)
