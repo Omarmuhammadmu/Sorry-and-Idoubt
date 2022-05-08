@@ -740,19 +740,6 @@ void movePawn(pawn* mover, int steps, board* brd, pawn sentPawns[8])
         }
         return;
     }
-    // pawns cannot make more than one turn around the board
-    // else if ((!mover->red && mover->x > 5 && mover->y > 12) || (mover->red && mover->x < 10 && mover->y < 3)) {
-    //     if ((-mover->x + mover->y + steps -2 > 6) && mover->red)
-    //     {
-    //         moveAnotherPawn(mover, steps, brd, sentPawns);
-    //         return;
-    //     }
-    //     else if ((17 + mover->y  - steps -  mover->x<9) && !mover->red) {
-    //         moveAnotherPawn(mover, steps, brd, sentPawns);
-    //         return;
-    //     }
-    // }
-
     //move on board boundaries
     if (mover->x == 0 && ((mover->y + steps) <= 15)) // upper horizontal
     {
