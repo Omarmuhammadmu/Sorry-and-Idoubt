@@ -137,6 +137,32 @@ bool overPlayed(char *plays)
     return false;
 }
 
+// function to get correct input
+// this function takes one arg .int to differntiate between truth,fake play and yes,no play. 0 for truth or fake and 1 for yes and no.
+char readChar(int play)
+{
+    char ch;
+    cin >> ch;
+    if (play == 0)
+    {
+        while (ch != 't' && ch != 'T' && ch != 'f' && ch != 'F')
+        {
+            cout << "Error: Please enter valid character. \n";
+            cin >> ch;
+        }
+        return ch;
+    }
+    else if (play == 1)
+    {
+        while (ch != 'y' && ch != 'Y' && ch != 'n' && ch != 'N')
+        {
+            cout << "Error: Please enter valid character. \n";
+            cin >> ch;
+        }
+        return ch;
+    }
+}
+
 // fun used to generate cards name out of their int number
 string cardNameGen(int n)
 {
@@ -357,21 +383,10 @@ void play()
             firstRound = false; // so we don't acess here twice
             playerPeek = player1.peek();
             cout << "- Game Started! \n- you have " << cardNameGen(playerPeek) << " play it with truth or fake? enter t for truth , f for fake." << endl;
-            cin >> player1State;
+            player1State = readChar(0);
             // add the state to the array
             playerPlays[playerPlaysCounter] = player1State;
             playerPlaysCounter++;
-            if (overPlayed(playerPlays)) // check if over played
-            {
-                cout << "**note you can only play 3 true on row. so your play state changed to fake.\n";
-                player1State = 'f';
-
-                // loop made to reintialze plays array with all 'f'
-                for (int i = 0; i < 100; i++)
-                {
-                    playerPlays[i] = 'f';
-                }
-            }
             // push the top of player 1 to the ground
             cout << "- you have played " << cardNameGen(playerPeek) << "!\n";
             restOfCards.push(player1.pop());
@@ -385,7 +400,7 @@ void play()
                 // player1 turn
                 cout << "- do you wanna doubt about his play? enter y for yes n for no \n";
                 char doubt; // player doubt or don't
-                cin >> doubt;
+                doubt = readChar(1);
                 if (doubt == 'y' || doubt == 'Y')
                 {
                     if (checkDoubt(cptrState) == 1)
@@ -403,7 +418,7 @@ void play()
                 }
                 playerPeek = player1.peek();
                 cout << "- you have " << cardNameGen(playerPeek) << " play it with truth or fake? enter t for truth , f for fake." << endl;
-                cin >> player1State;
+                player1State = readChar(0);
                 // add the state to the array
                 playerPlays[playerPlaysCounter] = player1State;
                 playerPlaysCounter++;
